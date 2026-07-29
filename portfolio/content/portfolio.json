@@ -1,0 +1,224 @@
+{
+  "meta": {
+    "name": "김서준",
+    "headline": "반복되는 웹 운영을 규칙·모듈·도구로 바꾸는 프론트엔드 제작자",
+    "description": "현재에서 과거로 이동하며, 반복 문제를 구조화해 온 여섯 개의 경력 장면을 살펴봅니다.",
+    "reconstructionLabel": "RECONSTRUCTION / 비식별 재구성"
+  },
+  "sections": [
+    {
+      "id": "megastudy",
+      "label": "01",
+      "organization": "메가스터디교육",
+      "period": "2026.03 — PRESENT",
+      "role": "Frontend Publisher",
+      "problem": "여러 서비스의 신규 화면과 운영 수정이 서로 다른 규칙으로 반복됐습니다.",
+      "action": "반응형·접근성 기준을 정리하고 AI 보조 제작 흐름을 개인 작업 규칙으로 구조화했습니다.",
+      "tags": ["HTML/CSS/JS", "Responsive", "AI workflow"],
+      "artworkLabel": "콘텐츠 모듈과 작업 규칙을 추상화한 스튜디오 테이블",
+      "assets": {
+        "desktop": {
+          "video": "/assets/media/desktop/scenes/01-megastudy.mp4",
+          "poster": "/assets/media/desktop/posters/01-megastudy.webp",
+          "staticImage": "/assets/media/desktop/static/01-megastudy.webp"
+        },
+        "mobile": {
+          "video": "/assets/media/mobile/scenes/01-megastudy.mp4",
+          "poster": "/assets/media/mobile/posters/01-megastudy.webp",
+          "staticImage": "/assets/media/mobile/static/01-megastudy.webp"
+        }
+      }
+    },
+    {
+      "id": "bucketstore",
+      "label": "02",
+      "organization": "버킷스토어",
+      "period": "2025.10 — 2026.01",
+      "role": "Web Publisher · Freelance",
+      "problem": "이미지 중심 프로모션 화면은 일정 변화와 모바일 대응에 따라 반복 수정이 필요했습니다.",
+      "action": "이미지 로딩과 반응형 배치를 우선순위로 두고 화면별 운영 작업을 정리했습니다.",
+      "verifiedOutcome": "기획 일정에 맞춰 PC·모바일 화면의 제작과 유지보수를 수행했습니다.",
+      "tags": ["Responsive", "Image loading", "Operations"],
+      "artworkLabel": "이미지 레이어와 반응형 그리드를 재구성한 라이트박스",
+      "assets": {
+        "desktop": {
+          "video": "/assets/media/desktop/scenes/02-bucketstore.mp4",
+          "poster": "/assets/media/desktop/posters/02-bucketstore.webp",
+          "staticImage": "/assets/media/desktop/static/02-bucketstore.webp"
+        },
+        "mobile": {
+          "video": "/assets/media/mobile/scenes/02-bucketstore.mp4",
+          "poster": "/assets/media/mobile/posters/02-bucketstore.webp",
+          "staticImage": "/assets/media/mobile/static/02-bucketstore.webp"
+        }
+      }
+    },
+    {
+      "id": "lotte",
+      "label": "03",
+      "organization": "롯데백화점",
+      "period": "2022.04 — 2025.08",
+      "role": "Frontend Publisher",
+      "problem": "매주 반복되는 프로모션 제작과 기기별 WebView 대응이 개별 화면마다 다시 시작됐습니다.",
+      "action": "반복 UI를 React 공통 템플릿과 모듈로 묶고 기기별 마크업 가이드를 정리했습니다.",
+      "tags": ["React", "Templates", "WebView"],
+      "artworkLabel": "공통 템플릿과 기기 프레임을 모듈형 구조물로 재구성",
+      "assets": {
+        "desktop": {
+          "video": "/assets/media/desktop/scenes/03-lotte.mp4",
+          "poster": "/assets/media/desktop/posters/03-lotte.webp",
+          "staticImage": "/assets/media/desktop/static/03-lotte.webp"
+        },
+        "mobile": {
+          "video": "/assets/media/mobile/scenes/03-lotte.mp4",
+          "poster": "/assets/media/mobile/posters/03-lotte.webp",
+          "staticImage": "/assets/media/mobile/static/03-lotte.webp"
+        }
+      }
+    },
+    {
+      "id": "chabio",
+      "label": "04",
+      "organization": "차바이오 뉴스룸",
+      "period": "2022.09 — 2022.10",
+      "role": "Web Publisher · Freelance",
+      "problem": "뉴스룸은 다양한 기사 길이와 화면 크기에서도 읽기 구조가 흔들리지 않아야 했습니다.",
+      "action": "시맨틱 마크업, 접근성, 반응형 규칙을 기준으로 뉴스룸 화면을 구축했습니다.",
+      "verifiedOutcome": "PC·모바일 뉴스룸의 구축 범위를 완료했습니다.",
+      "tags": ["Semantic HTML", "Accessibility", "Responsive"],
+      "artworkLabel": "기사 계층과 읽기 흐름을 종이 아카이브로 재구성",
+      "assets": {
+        "desktop": {
+          "video": "/assets/media/desktop/scenes/04-chabio.mp4",
+          "poster": "/assets/media/desktop/posters/04-chabio.webp",
+          "staticImage": "/assets/media/desktop/static/04-chabio.webp"
+        },
+        "mobile": {
+          "video": "/assets/media/mobile/scenes/04-chabio.mp4",
+          "poster": "/assets/media/mobile/posters/04-chabio.webp",
+          "staticImage": "/assets/media/mobile/static/04-chabio.webp"
+        }
+      }
+    },
+    {
+      "id": "hama",
+      "label": "05",
+      "organization": "하마그룹",
+      "period": "2021.06 — 2021.11",
+      "role": "Frontend Publisher",
+      "problem": "다국어·반응형 화면에서 같은 UI를 일관되게 확장할 제작 단위가 필요했습니다.",
+      "action": "Vue와 SCSS 기반 공통 컴포넌트로 화면과 스타일 규칙을 나눴습니다.",
+      "verifiedOutcome": "공통 UI와 다국어 대응 화면의 구현 업무를 수행했습니다.",
+      "tags": ["Vue.js", "SCSS", "i18n"],
+      "artworkLabel": "컴포넌트 블록과 다국어 레이어를 쌓은 모형",
+      "assets": {
+        "desktop": {
+          "video": "/assets/media/desktop/scenes/05-hama.mp4",
+          "poster": "/assets/media/desktop/posters/05-hama.webp",
+          "staticImage": "/assets/media/desktop/static/05-hama.webp"
+        },
+        "mobile": {
+          "video": "/assets/media/mobile/scenes/05-hama.mp4",
+          "poster": "/assets/media/mobile/posters/05-hama.webp",
+          "staticImage": "/assets/media/mobile/static/05-hama.webp"
+        }
+      }
+    },
+    {
+      "id": "synthesis",
+      "label": "06",
+      "organization": "Synthesis",
+      "period": "2011 — PRESENT",
+      "role": "Career Principle",
+      "problem": "운영 업무의 가치는 결과 화면만으로는 반복 문제와 개선 과정을 설명하기 어렵습니다.",
+      "action": "경력 전반을 문제 발견 → 규칙화 → 모듈화 → 도구화의 흐름으로 정리했습니다.",
+      "verifiedOutcome": "각 장면은 공개 가능한 경력 사실만 사용한 비식별 재구성입니다.",
+      "tags": ["Systems thinking", "Operations", "Frontend"],
+      "artworkLabel": "다섯 경력의 공통 구조를 하나의 제작 시스템으로 연결",
+      "assets": {
+        "desktop": {
+          "video": "/assets/media/desktop/scenes/06-synthesis.mp4",
+          "poster": "/assets/media/desktop/posters/06-synthesis.webp",
+          "staticImage": "/assets/media/desktop/static/06-synthesis.webp"
+        },
+        "mobile": {
+          "video": "/assets/media/mobile/scenes/06-synthesis.mp4",
+          "poster": "/assets/media/mobile/posters/06-synthesis.webp",
+          "staticImage": "/assets/media/mobile/static/06-synthesis.webp"
+        }
+      }
+    }
+  ],
+  "connectors": [
+    {
+      "from": "megastudy",
+      "to": "bucketstore",
+      "assets": {
+        "desktop": {
+          "video": "/assets/media/desktop/connectors/01-megastudy-bucketstore.mp4",
+          "poster": "/assets/media/desktop/posters/connector-01.webp"
+        },
+        "mobile": {
+          "video": "/assets/media/mobile/connectors/01-megastudy-bucketstore.mp4",
+          "poster": "/assets/media/mobile/posters/connector-01.webp"
+        }
+      }
+    },
+    {
+      "from": "bucketstore",
+      "to": "lotte",
+      "assets": {
+        "desktop": {
+          "video": "/assets/media/desktop/connectors/02-bucketstore-lotte.mp4",
+          "poster": "/assets/media/desktop/posters/connector-02.webp"
+        },
+        "mobile": {
+          "video": "/assets/media/mobile/connectors/02-bucketstore-lotte.mp4",
+          "poster": "/assets/media/mobile/posters/connector-02.webp"
+        }
+      }
+    },
+    {
+      "from": "lotte",
+      "to": "chabio",
+      "assets": {
+        "desktop": {
+          "video": "/assets/media/desktop/connectors/03-lotte-chabio.mp4",
+          "poster": "/assets/media/desktop/posters/connector-03.webp"
+        },
+        "mobile": {
+          "video": "/assets/media/mobile/connectors/03-lotte-chabio.mp4",
+          "poster": "/assets/media/mobile/posters/connector-03.webp"
+        }
+      }
+    },
+    {
+      "from": "chabio",
+      "to": "hama",
+      "assets": {
+        "desktop": {
+          "video": "/assets/media/desktop/connectors/04-chabio-hama.mp4",
+          "poster": "/assets/media/desktop/posters/connector-04.webp"
+        },
+        "mobile": {
+          "video": "/assets/media/mobile/connectors/04-chabio-hama.mp4",
+          "poster": "/assets/media/mobile/posters/connector-04.webp"
+        }
+      }
+    },
+    {
+      "from": "hama",
+      "to": "synthesis",
+      "assets": {
+        "desktop": {
+          "video": "/assets/media/desktop/connectors/05-hama-synthesis.mp4",
+          "poster": "/assets/media/desktop/posters/connector-05.webp"
+        },
+        "mobile": {
+          "video": "/assets/media/mobile/connectors/05-hama-synthesis.mp4",
+          "poster": "/assets/media/mobile/posters/connector-05.webp"
+        }
+      }
+    }
+  ]
+}
