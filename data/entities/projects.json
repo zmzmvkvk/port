@@ -15,21 +15,6 @@
     "privacy": "public-safe"
   },
   {
-    "id": "project:roomy",
-    "type": "project",
-    "name": "Roomy",
-    "kind": "personal-saas",
-    "status": "building",
-    "summary": "숙박 호스트와 예비부부를 위한 링크·QR 기반 모바일 안내 서비스. 게스트가 설치나 가입 없이 정보를 확인하는 흐름을 지향합니다.",
-    "problem": "숙박 공간의 안내와 이벤트 정보를 여러 채널로 흩어 전달하는 불편을 하나의 모바일 링크 경험으로 줄이려 했습니다.",
-    "actions": ["서비스 문제 정의와 고객축 설정", "모바일 청첩장과 객실 안내 흐름 설계", "프론트엔드·데이터·기능을 직접 연결하며 프로토타이핑"],
-    "outcomes": ["화면 제작을 넘어 제품·데이터 구조를 직접 다루는 경험 확보", "로그인 없이 접근 가능한 게스트 경험을 설계"],
-    "skills": ["skill:product-thinking", "skill:frontend", "skill:data-modeling", "skill:rapid-prototyping"],
-    "claimRefs": ["claim:roomy-e2e"],
-    "sourceRefs": ["evidence:user-profile", "evidence:resume-archive"],
-    "privacy": "public-safe"
-  },
-  {
     "id": "project:lotte-template-system",
     "type": "project",
     "name": "롯데백화점 앱 공통 템플릿·모듈 시스템",

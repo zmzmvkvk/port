@@ -34,17 +34,5 @@
     "needsEvidence":true,
     "evidenceRefs":["evidence:resume-archive"],
     "nextEvidence":"팀 공유 문서, 사용 전후 예시, 실제 사용 팀원 수를 내부정보 제거 후 기록"
-  },
-  {
-    "id":"claim:roomy-e2e",
-    "type":"claim",
-    "subjectRef":"project:roomy",
-    "predicate":"built product end-to-end",
-    "object":"숙박 호스트/예비부부를 위한 모바일 안내 서비스를 기획부터 프론트엔드·데이터까지 직접 구현",
-    "status":"captured",
-    "confidence":"medium",
-    "needsEvidence":true,
-    "evidenceRefs":["evidence:user-profile", "evidence:resume-archive"],
-    "nextEvidence":"공개 가능한 데모 URL, 제품 결정 로그, 데이터 모델, 사용자 테스트 기록 추가"
   }
 ]

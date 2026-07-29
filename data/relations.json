@@ -6,10 +6,8 @@
   {"from":"person:kim-seojun","type":"HELD_ROLE_IN","to":"freelance:chabio-newsroom"},
   {"from":"person:kim-seojun","type":"STUDIED_AT","to":"education:taylors-university"},
   {"from":"person:kim-seojun","type":"BUILT","to":"project:publishing-automation"},
-  {"from":"person:kim-seojun","type":"BUILT","to":"project:roomy"},
   {"from":"employment:iamform-lotte","type":"PRODUCED","to":"claim:lotte-productivity"},
   {"from":"employment:iamform-lotte","type":"PRODUCED","to":"claim:webview-stability"},
   {"from":"employment:megastudy","type":"PRODUCED","to":"claim:ai-publishing-standard"},
-  {"from":"project:roomy","type":"EVOLVED_FROM","to":"employment:megastudy"},
   {"from":"project:lotte-template-system","type":"EVOLVED_FROM","to":"employment:iamform-lotte"}
 ]
