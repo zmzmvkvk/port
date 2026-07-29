@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="김서준의 취업용 포트폴리오 백그라운드 온톨로지 대시보드">
+  <title>Career OS · 김서준</title>
+  <link rel="stylesheet" href="./dashboard.css">
+</head>
+<body>
+  <main class="shell">
+    <header class="hero bento-card span-12">
+      <div class="hero-copy">
+        <p class="eyebrow">CAREER OS / ONTOLOGY v1</p>
+        <h1 id="profile-name">백그라운드를 구조화하는 중…</h1>
+        <p id="profile-headline" class="hero-headline"></p>
+        <p id="profile-summary" class="hero-summary"></p>
+        <div id="target-roles" class="tag-row"></div>
+      </div>
+      <div class="hero-side">
+        <div class="orbit-mark" aria-hidden="true"><span>F</span><i></i><b></b></div>
+        <p class="hero-note">사실 → 근거 → 해석 → 포트폴리오</p>
+        <a class="text-link" href="./data/ontology/README.md">온톨로지 규칙 읽기 ↗</a>
+      </div>
+    </header>
+
+    <section class="stats-grid span-12" aria-label="요약 지표">
+      <article class="stat-card"><span class="stat-label">EXPERIENCES</span><strong id="stat-experiences">—</strong><span>고용 + 프리랜스</span></article>
+      <article class="stat-card accent-lime"><span class="stat-label">PROJECTS</span><strong id="stat-projects">—</strong><span>제품·도구·시스템</span></article>
+      <article class="stat-card accent-orange"><span class="stat-label">CAPABILITIES</span><strong id="stat-skills">—</strong><span>작업으로 입증할 역량</span></article>
+      <article class="stat-card accent-pink"><span class="stat-label">EVIDENCE GAPS</span><strong id="stat-gaps">—</strong><span>추가 검증이 필요한 주장</span></article>
+    </section>
+
+    <section class="bento-card span-8 timeline-card">
+      <div class="section-heading"><div><p class="eyebrow">WORK GRAPH</p><h2>경험 타임라인</h2></div><span class="section-count" id="experience-count">—</span></div>
+      <div id="experience-list" class="timeline-list"></div>
+    </section>
+
+    <section class="bento-card span-4 signal-card">
+      <div class="section-heading"><div><p class="eyebrow">SIGNAL</p><h2>나를 설명하는 축</h2></div></div>
+      <div class="signal-main"><span class="signal-dot"></span><strong>화면을 넘어<br>작업 시스템을 만든다</strong></div>
+      <p class="muted">반복되는 UI를 모듈화하고, 기준을 문서화하고, AI를 실행 레이어로 연결해 왔습니다.</p>
+      <div id="category-bars" class="category-bars"></div>
+    </section>
+
+    <section class="bento-card span-7 projects-card">
+      <div class="section-heading"><div><p class="eyebrow">PROJECT GRAPH</p><h2>프로젝트 노드</h2></div><span class="section-count" id="project-count">—</span></div>
+      <div id="project-grid" class="project-grid"></div>
+    </section>
+
+    <section class="bento-card span-5 claims-card">
+      <div class="section-heading"><div><p class="eyebrow">PROOF LADDER</p><h2>성과 주장과 근거</h2></div><span class="section-count" id="claim-count">—</span></div>
+      <div id="claim-list" class="claim-list"></div>
+      <p class="footnote">숫자·영향은 근거를 보강하기 전까지 ‘자기보고’로 표시합니다.</p>
+    </section>
+
+    <section class="bento-card span-4 education-card">
+      <div class="section-heading"><div><p class="eyebrow">ORIGIN</p><h2>학습 배경</h2></div></div>
+      <div id="education-list"></div>
+    </section>
+
+    <section class="bento-card span-4 data-card">
+      <div class="section-heading"><div><p class="eyebrow">DATA HYGIENE</p><h2>데이터 상태</h2></div><span class="status-pill">PUBLIC-SAFE</span></div>
+      <ul class="check-list">
+        <li><span>✓</span> 원문과 공개 요약 분리</li>
+        <li><span>✓</span> 각 주장에 출처 연결</li>
+        <li><span>✓</span> 개인정보 Git 제외</li>
+        <li><span>→</span> 다음: 캡처·로그·데모 보강</li>
+      </ul>
+      <a class="text-link" href="./data/README.md">데이터 레이어 보기 ↗</a>
+    </section>
+
+    <section class="bento-card span-4 relation-card">
+      <div class="section-heading"><div><p class="eyebrow">RELATION MAP</p><h2>지식 그래프</h2></div></div>
+      <div class="relation-map" aria-label="개인에서 역량과 포트폴리오로 이어지는 관계">
+        <span class="node node-person">PERSON</span><i></i><span class="node node-work">WORK</span><i></i><span class="node node-skill">SKILL</span><i></i><span class="node node-proof">PROOF</span>
+      </div>
+      <p class="muted">지원 직무를 정하면 이 그래프에서 관련 프로젝트와 증거만 골라 케이스 스터디로 변환합니다.</p>
+    </section>
+  </main>
+
+  <footer class="footer"><span>career-ontology-v1</span><span id="updated-at">loading data…</span><span>HTML · CSS · JS only</span></footer>
+
+  <div id="detail-modal" class="modal" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <article class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button class="modal-close" type="button" data-close-modal aria-label="닫기">×</button>
+      <p id="modal-kicker" class="eyebrow"></p>
+      <h2 id="modal-title"></h2>
+      <div id="modal-content"></div>
+    </article>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="./dashboard.js" defer></script>
+</body>
+</html>

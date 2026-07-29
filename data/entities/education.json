@@ -1,0 +1,16 @@
+[
+  {
+    "id": "education:taylors-university",
+    "type": "education",
+    "institution": "Taylor's University",
+    "program": "International Hospitality Management",
+    "degree": "Bachelor's degree",
+    "status": "graduated",
+    "location": "Malaysia",
+    "start": "2016-08",
+    "end": "2020-10",
+    "transferableSignals": ["다른 언어·문화권에서 학업을 완주한 적응력", "서비스 품질·운영·고객 경험에 대한 도메인 이해", "현장 인턴십과 팀 기반 과제 경험"],
+    "sourceRefs": ["evidence:resume-archive"],
+    "privacy": "public-safe"
+  }
+]

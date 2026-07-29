@@ -1,0 +1,47 @@
+[
+  {
+    "id": "project:publishing-automation",
+    "type": "project",
+    "name": "퍼블리싱 업무 AI 자동화 도구",
+    "kind": "internal-tool",
+    "status": "in-use",
+    "summary": "개인의 마크업·스타일 규칙을 AI가 재현하도록 정리해 반복적인 웹 제작 흐름을 자동화한 내부 도구.",
+    "problem": "유사 페이지를 반복 제작하면서 작업 시간이 늘고 작업자별 코드 스타일 차이로 유지보수 비용이 생겼습니다.",
+    "actions": ["작성 규칙을 명시적인 지침으로 정리", "작업 입력 → 코드 생성 → 직접 검토 흐름 설계", "사용법을 팀원과 공유하고 피드백을 반영"],
+    "outcomes": ["반복 작업 시간 단축", "팀 공통 퍼블리싱 기준으로 정착", "작업자 간 결과물 일관성 향상", "신규 합류자의 적응 기준 제공"],
+    "skills": ["skill:ai-automation", "skill:workflow-design", "skill:html-css-js", "skill:quality-review"],
+    "claimRefs": ["claim:ai-publishing-standard"],
+    "sourceRefs": ["evidence:resume-archive"],
+    "privacy": "public-safe"
+  },
+  {
+    "id": "project:roomy",
+    "type": "project",
+    "name": "Roomy",
+    "kind": "personal-saas",
+    "status": "building",
+    "summary": "숙박 호스트와 예비부부를 위한 링크·QR 기반 모바일 안내 서비스. 게스트가 설치나 가입 없이 정보를 확인하는 흐름을 지향합니다.",
+    "problem": "숙박 공간의 안내와 이벤트 정보를 여러 채널로 흩어 전달하는 불편을 하나의 모바일 링크 경험으로 줄이려 했습니다.",
+    "actions": ["서비스 문제 정의와 고객축 설정", "모바일 청첩장과 객실 안내 흐름 설계", "프론트엔드·데이터·기능을 직접 연결하며 프로토타이핑"],
+    "outcomes": ["화면 제작을 넘어 제품·데이터 구조를 직접 다루는 경험 확보", "로그인 없이 접근 가능한 게스트 경험을 설계"],
+    "skills": ["skill:product-thinking", "skill:frontend", "skill:data-modeling", "skill:rapid-prototyping"],
+    "claimRefs": ["claim:roomy-e2e"],
+    "sourceRefs": ["evidence:user-profile", "evidence:resume-archive"],
+    "privacy": "public-safe"
+  },
+  {
+    "id": "project:lotte-template-system",
+    "type": "project",
+    "name": "롯데백화점 앱 공통 템플릿·모듈 시스템",
+    "kind": "production-system",
+    "status": "completed",
+    "summary": "반복되는 프로모션 페이지 요소를 재사용 가능한 React 템플릿과 공통 모듈로 구조화한 운영 개선 작업.",
+    "problem": "매주 반복되는 페이지 제작을 매번 처음부터 수행해 제작 속도와 코드 일관성이 떨어졌습니다.",
+    "actions": ["자주 쓰는 UI와 레이아웃 패턴 추출", "공통 모듈과 작업 기준 정리", "웹뷰에서 재현되는 스크롤·터치·모달 문제를 사전 차단"],
+    "outcomes": ["이력서 기준 운영 생산성 30% 이상 향상으로 기록됨", "코드 일관성과 유지보수 효율 개선", "기기별 사용자 경험 안정화"],
+    "skills": ["skill:react", "skill:componentization", "skill:ui-operations", "skill:cross-browser"],
+    "claimRefs": ["claim:lotte-productivity", "claim:webview-stability"],
+    "sourceRefs": ["evidence:resume-archive"],
+    "privacy": "public-safe"
+  }
+]

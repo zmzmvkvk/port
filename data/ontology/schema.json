@@ -1,0 +1,27 @@
+{
+  "id": "career-ontology-v1",
+  "version": "1.0.0",
+  "description": "Public-safe career knowledge graph for portfolio preparation",
+  "entityTypes": {
+    "person": ["id", "name", "headline", "targetRoles", "sourceRefs"],
+    "employment": ["id", "organization", "role", "start", "end", "responsibilities", "skills", "claimRefs", "sourceRefs"],
+    "freelance": ["id", "organization", "role", "start", "end", "responsibilities", "skills", "sourceRefs"],
+    "project": ["id", "name", "kind", "status", "summary", "problem", "actions", "outcomes", "skills", "claimRefs", "sourceRefs"],
+    "education": ["id", "institution", "program", "status", "start", "end", "sourceRefs"],
+    "skill": ["id", "name", "category", "evidenceRefs", "confidence"],
+    "claim": ["id", "subjectRef", "predicate", "object", "status", "confidence", "sourceRefs", "evidenceRefs", "needsEvidence"],
+    "evidence": ["id", "type", "label", "locator", "privacy", "reliability", "notes"]
+  },
+  "relationTypes": {
+    "HELD_ROLE_IN": {"from": "person", "to": ["employment", "freelance"]},
+    "BUILT": {"from": "person", "to": "project"},
+    "STUDIED_AT": {"from": "person", "to": "education"},
+    "USED": {"from": ["employment", "project"], "to": "skill"},
+    "DEMONSTRATES": {"from": "project", "to": "skill"},
+    "PRODUCED": {"from": ["employment", "project"], "to": "claim"},
+    "SUPPORTED_BY": {"from": "claim", "to": "evidence"},
+    "EVOLVED_FROM": {"from": "project", "to": ["employment", "project"]}
+  },
+  "claimStatuses": ["captured", "self-reported", "corroborated", "portfolio-ready", "needs-evidence"],
+  "privacyLevels": ["public-safe", "private", "internal-only"]
+}

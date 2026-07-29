@@ -1,0 +1,20 @@
+[
+  {"id":"skill:html-css-js","type":"skill","name":"HTML / CSS / JavaScript","category":"foundation","confidence":"high","evidenceRefs":["evidence:resume-archive"]},
+  {"id":"skill:vue","type":"skill","name":"Vue.js","category":"frontend","confidence":"high","evidenceRefs":["evidence:resume-archive"]},
+  {"id":"skill:react","type":"skill","name":"React","category":"frontend","confidence":"high","evidenceRefs":["evidence:resume-archive"]},
+  {"id":"skill:scss","type":"skill","name":"SCSS / design system coding","category":"frontend","confidence":"medium","evidenceRefs":["evidence:resume-archive"]},
+  {"id":"skill:responsive","type":"skill","name":"Responsive web","category":"quality","confidence":"high","evidenceRefs":["evidence:resume-archive"]},
+  {"id":"skill:accessibility","type":"skill","name":"Web standards & accessibility","category":"quality","confidence":"high","evidenceRefs":["evidence:resume-archive"]},
+  {"id":"skill:cross-browser","type":"skill","name":"Cross-browser / WebView debugging","category":"quality","confidence":"high","evidenceRefs":["evidence:resume-archive"]},
+  {"id":"skill:componentization","type":"skill","name":"Componentization & reusable modules","category":"systems","confidence":"high","evidenceRefs":["evidence:resume-archive"]},
+  {"id":"skill:ai-automation","type":"skill","name":"AI-assisted workflow automation","category":"automation","confidence":"medium","evidenceRefs":["evidence:resume-archive"]},
+  {"id":"skill:workflow-design","type":"skill","name":"Workflow / convention design","category":"systems","confidence":"medium","evidenceRefs":["evidence:resume-archive"]},
+  {"id":"skill:quality-review","type":"skill","name":"Human review & quality gates","category":"quality","confidence":"medium","evidenceRefs":["evidence:resume-archive"]},
+  {"id":"skill:product-thinking","type":"skill","name":"Product thinking","category":"product","confidence":"medium","evidenceRefs":["evidence:user-profile"]},
+  {"id":"skill:data-modeling","type":"skill","name":"Data modeling","category":"product","confidence":"emerging","evidenceRefs":["evidence:user-profile"]},
+  {"id":"skill:rapid-prototyping","type":"skill","name":"Rapid prototyping","category":"product","confidence":"medium","evidenceRefs":["evidence:user-profile"]},
+  {"id":"skill:semantic-html","type":"skill","name":"Semantic markup","category":"quality","confidence":"high","evidenceRefs":["evidence:resume-archive"]},
+  {"id":"skill:performance","type":"skill","name":"Image/loading performance","category":"quality","confidence":"medium","evidenceRefs":["evidence:resume-archive"]},
+  {"id":"skill:ui-operations","type":"skill","name":"Production UI operations","category":"systems","confidence":"high","evidenceRefs":["evidence:resume-archive"]},
+  {"id":"skill:frontend","type":"skill","name":"Frontend product implementation","category":"frontend","confidence":"high","evidenceRefs":["evidence:resume-archive", "evidence:user-profile"]}
+]

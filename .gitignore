@@ -1,0 +1,15 @@
+# Private career source material
+/data/private/*
+!/data/private/README.md
+
+# Local runtime / editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+
+# Local servers and exports
+coverage/
+dist/
+exports/

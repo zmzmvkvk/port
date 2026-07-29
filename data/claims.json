@@ -1,0 +1,50 @@
+[
+  {
+    "id":"claim:lotte-productivity",
+    "type":"claim",
+    "subjectRef":"project:lotte-template-system",
+    "predicate":"improved production productivity",
+    "object":"30% 이상 향상",
+    "status":"self-reported",
+    "confidence":"medium",
+    "needsEvidence":true,
+    "evidenceRefs":["evidence:resume-archive"],
+    "nextEvidence":"작업 전후 샘플 수·평균 제작 시간·기간을 재계산하고 가능하면 동료 확인을 추가"
+  },
+  {
+    "id":"claim:webview-stability",
+    "type":"claim",
+    "subjectRef":"project:lotte-template-system",
+    "predicate":"reduced recurring WebView issues",
+    "object":"iframe 스크롤·터치·모달 겹침 문제를 마크업 가이드로 사전 차단",
+    "status":"self-reported",
+    "confidence":"medium",
+    "needsEvidence":true,
+    "evidenceRefs":["evidence:resume-archive"],
+    "nextEvidence":"문제 유형, 재현 환경, 해결 전후 티켓/QA 기록을 비식별화해 보강"
+  },
+  {
+    "id":"claim:ai-publishing-standard",
+    "type":"claim",
+    "subjectRef":"project:publishing-automation",
+    "predicate":"standardized team publishing workflow",
+    "object":"개인 규칙 기반 AI 자동화 도구를 팀 공통 퍼블리싱 기준으로 공유",
+    "status":"self-reported",
+    "confidence":"medium",
+    "needsEvidence":true,
+    "evidenceRefs":["evidence:resume-archive"],
+    "nextEvidence":"팀 공유 문서, 사용 전후 예시, 실제 사용 팀원 수를 내부정보 제거 후 기록"
+  },
+  {
+    "id":"claim:roomy-e2e",
+    "type":"claim",
+    "subjectRef":"project:roomy",
+    "predicate":"built product end-to-end",
+    "object":"숙박 호스트/예비부부를 위한 모바일 안내 서비스를 기획부터 프론트엔드·데이터까지 직접 구현",
+    "status":"captured",
+    "confidence":"medium",
+    "needsEvidence":true,
+    "evidenceRefs":["evidence:user-profile", "evidence:resume-archive"],
+    "nextEvidence":"공개 가능한 데모 URL, 제품 결정 로그, 데이터 모델, 사용자 테스트 기록 추가"
+  }
+]

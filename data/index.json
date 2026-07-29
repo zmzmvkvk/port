@@ -1,0 +1,19 @@
+{
+  "ontology": "career-ontology-v1",
+  "updatedAt": "2026-07-29",
+  "collections": {
+    "profile": "./entities/profile.json",
+    "experiences": "./entities/experiences.json",
+    "projects": "./entities/projects.json",
+    "education": "./entities/education.json",
+    "skills": "./entities/skills.json",
+    "claims": "./claims.json",
+    "evidence": "./evidence.json",
+    "relations": "./relations.json"
+  },
+  "privacy": {
+    "publicSafe": true,
+    "privateSourceFilesExcluded": true,
+    "rule": "Do not put contact details, addresses, birth dates, internal URLs, or company-confidential artifacts in this repository."
+  }
+}

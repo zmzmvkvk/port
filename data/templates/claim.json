@@ -1,0 +1,12 @@
+{
+  "id": "claim:short-slug",
+  "type": "claim",
+  "subjectRef": "project:...",
+  "predicate": "what changed",
+  "object": "result",
+  "status": "captured",
+  "confidence": "low|medium|high",
+  "needsEvidence": true,
+  "evidenceRefs": [],
+  "nextEvidence": "어떤 로그·캡처·동료 확인·공개 URL이 필요한가"
+}

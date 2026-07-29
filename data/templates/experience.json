@@ -1,0 +1,14 @@
+{
+  "id": "employment:organization-slug",
+  "type": "employment",
+  "organization": "회사명",
+  "role": "직무",
+  "start": "YYYY-MM",
+  "end": "YYYY-MM or null",
+  "status": "current or ended",
+  "responsibilities": [],
+  "skills": [],
+  "claimRefs": [],
+  "sourceRefs": [],
+  "privacy": "public-safe"
+}
