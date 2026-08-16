@@ -11,11 +11,7 @@ Thumbs.db
 
 # Local servers and exports
 coverage/
-dist/
 exports/
 
-# Portfolio build and dependencies
-portfolio/node_modules/
-portfolio/dist/
-portfolio/test-results/
-portfolio/playwright-report/
+# Wrangler local state
+.wrangler/

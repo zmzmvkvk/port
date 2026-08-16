@@ -1,0 +1,584 @@
+/* 김서준 — 에디토리얼 브루탈리즘 / 스위스 그리드 포트폴리오
+   외부 요청 없음. 시스템 폰트 · 인라인 SVG · CSS 카운터만 사용. */
+
+:root {
+  /* 무채색 골격 */
+  --bg:          #f5f4f0;
+  --bg-raised:   #ffffff;
+  --fg:          #121212;
+  --fg-2:        #45454b; /* 본문 보조 · 8.65:1 */
+  --fg-3:        #63636a; /* 라벨 · 5.42:1 */
+  --line:        #121212;
+  --line-soft:   #d8d5cd;
+  --chip-bg:     #ecece6;
+  --chip-border: #d3d0c8;
+  --ring:        #121212;
+
+  /* 액센트 — 단 하나 (인덱스 숫자 · 강조어 · 포인트 도트) */
+  --accent:      #b3391a; /* 5.43:1 on --bg */
+
+  /* 반전 판(히어로 · 원칙) — 톤과 무관하게 항상 본문과 반대로 뒤집힌다 */
+  --hero-bg:     #121212;
+  --hero-fg:     #f5f4ee;
+  --hero-fg-2:   rgba(245, 244, 238, 0.78); /* 10.53:1 on --hero-bg */
+
+  /* 활자 스케일 */
+  --fs-name:  clamp(3.4rem, 4.6rem + 7vw, 10.5rem);
+  --fs-role:  0.95rem;
+  --fs-lede:  1.05rem;
+  --fs-h2:    clamp(1.35rem, 1.1rem + 1vw, 1.9rem);
+  --fs-h3:    1.1rem;
+  --fs-pos:   0.87rem;
+  --fs-body:  1rem;
+  --fs-date:  0.86rem;
+  --fs-kind:  0.75rem;
+  --fs-dt:    0.76rem;
+  --fs-tag:   0.73rem;
+  --fs-note:  0.9rem;
+  --fs-foot:  0.82rem;
+  --fs-num:   clamp(1.5rem, 1.1rem + 3.4vw, 2.6rem);
+  --fs-principle: clamp(1.3rem, 1.05rem + 1vw, 1.85rem);
+
+  /* 형태 · 그리드 */
+  --radius-sm: 2px;
+  --measure:   46rem;
+  --gutter:    clamp(1.25rem, 3vw + 0.6rem, 3.25rem);
+  --col-date:  9.75rem;
+  --col-gap:   1.9rem;
+  --ease: cubic-bezier(.22,.75,.24,1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:          #121316;
+    --bg-raised:   #191a1e;
+    --fg:          #ece9e4;
+    --fg-2:        #b6b3ac; /* 8.87:1 */
+    --fg-3:        #918e86; /* 5.68:1 */
+    --line:        #ece9e4;
+    --line-soft:   #34343a;
+    --chip-bg:     #1e1f23;
+    --chip-border: #34343a;
+    --ring:        #ece9e4;
+
+    --accent:      #ff6a3d; /* 6.53:1 on --bg */
+
+    /* 반전 판은 다크 모드에서 밝게 — 항상 본문과 반대 톤 */
+    --hero-bg:     #f2f0ea;
+    --hero-fg:     #121212;
+    --hero-fg-2:   rgba(18, 18, 18, 0.78); /* 8.70:1 on --hero-bg */
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text",
+               "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo",
+               "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  letter-spacing: -0.003em;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* 포커스 */
+:focus { outline: none; }
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+.hero :focus-visible { outline-color: var(--hero-fg); }
+.principle :focus-visible { outline-color: var(--hero-fg); }
+
+/* 건너뛰기 링크 */
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--fg);
+  color: var(--bg);
+  padding: 0.65rem 1.1rem;
+  font-size: 0.85rem;
+  z-index: 10;
+  border-radius: 0 0 var(--radius-sm) 0;
+}
+.skip:focus-visible { left: 0; outline-offset: -3px; outline-color: var(--bg); }
+
+/* ── 공통 그리드 컨테이너 ───────────────────
+   히어로 · 본문 · 원칙 판이 전부 같은 --measure / --gutter를 써서
+   좌측 기준선이 하나의 축 위에 정확히 맞는다. */
+
+.hero__inner,
+.wrap,
+.principle__inner {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+}
+
+/* ── 히어로 ─────────────────────────────────
+   본문과 항상 반대로 뒤집히는 반전 판. 라이트 모드에선 어둡게,
+   다크 모드에선 밝게 — 톤이 바뀌어도 리듬 충돌은 유지된다. */
+
+.hero {
+  background: var(--hero-bg);
+  color: var(--hero-fg);
+  position: relative;
+  padding-top: 1px; /* 눈금자 줄과의 시각적 여백 */
+}
+
+.hero::before {
+  /* 장식용 눈금자 — 그리드가 실제로 존재함을 보여주는 시각 요소 */
+  content: "";
+  display: block;
+  height: 7px;
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--hero-fg) 0,
+    var(--hero-fg) 1px,
+    transparent 1px,
+    transparent 24px
+  );
+  background-position: left top;
+  opacity: 0.55;
+}
+
+.hero__inner {
+  padding-top: clamp(3rem, 4vw + 1.5rem, 5.5rem);
+  padding-bottom: clamp(2.4rem, 3vw + 1rem, 4rem);
+}
+
+.hero__name {
+  margin: 0;
+  font-size: var(--fs-name);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  overflow-wrap: anywhere;
+}
+
+.hero__foot {
+  margin-top: clamp(1.6rem, 2vw + 1rem, 2.6rem);
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--hero-fg-2);
+  display: grid;
+  grid-template-columns: var(--col-date) 1fr;
+  gap: 0.6rem var(--col-gap);
+  max-width: 42rem;
+}
+
+.hero .role {
+  margin: 0;
+  font-size: var(--fs-role);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hero-fg);
+}
+
+.hero .lede {
+  margin: 0;
+  color: var(--hero-fg-2);
+  font-size: var(--fs-lede);
+  line-height: 1.8;
+}
+
+/* ── 본문 래퍼 ──────────────────────────────── */
+
+.wrap { padding-top: 0; }
+
+main#main { display: block; }
+
+/* ── 섹션 ───────────────────────────────────── */
+
+.section {
+  padding-top: clamp(2.2rem, 3vw + 1rem, 3.4rem);
+  padding-bottom: clamp(2.2rem, 3vw + 1rem, 3.4rem);
+  border-top: 1px solid var(--line);
+}
+
+.section + .section { border-top: 1px solid var(--line-soft); }
+
+.section > h2 {
+  margin: 0 0 clamp(1.6rem, 2vw + 0.8rem, 2.4rem);
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+
+/* ── 항목 (경력 · 주요 작업 · 학력 공통 그리드) ── */
+
+.items { margin: 0; padding: 0; list-style: none; }
+
+.item {
+  display: grid;
+  grid-template-columns: var(--col-date) 1fr;
+  gap: 0 var(--col-gap);
+  padding: 0.9rem 0.9rem 2.35rem 0.9rem;
+  margin: -0.9rem 0 0 -0.9rem;
+  border-bottom: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  transition: background-color 0.25s var(--ease);
+}
+
+.items > .item:last-child {
+  padding-bottom: 0.9rem;
+  margin-bottom: -0.9rem;
+  border-bottom: 0;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .item:hover { background-color: var(--chip-bg); }
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  padding-top: 0.3rem;
+}
+
+/* 경력 항목에만 붙는 인덱스 숫자 — 순수 시각 요소.
+   CSS 카운터로 생성하므로 본문 텍스트는 한 글자도 늘지 않는다. */
+.items--career { counter-reset: career; }
+.items--career > .item { counter-increment: career; }
+.items--career > .item .meta::before {
+  content: counter(career, decimal-leading-zero);
+  display: block;
+  font-size: var(--fs-num);
+  font-weight: 800;
+  line-height: 0.85;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.15rem;
+}
+
+.date {
+  font-size: var(--fs-date);
+  font-weight: 700;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.005em;
+}
+
+.kind {
+  font-size: var(--fs-kind);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.kind::before {
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 0.4rem;
+  margin-bottom: 0.05em;
+  background: var(--accent);
+  vertical-align: middle;
+}
+
+.body {
+  border-left: 1px solid var(--line);
+  padding-left: 1.6rem;
+}
+
+.body h3 {
+  margin: 0 0 1rem;
+  font-size: var(--fs-h3);
+  font-weight: 800;
+  letter-spacing: -0.012em;
+  line-height: 1.45;
+}
+
+.body h3 .pos {
+  display: block;
+  font-size: var(--fs-pos);
+  font-weight: 450;
+  color: var(--fg-2);
+  margin-top: 0.25rem;
+  letter-spacing: -0.004em;
+}
+
+.body > p {
+  margin: 0 0 0.9rem;
+  font-size: var(--fs-body);
+}
+
+.body .sub {
+  font-size: var(--fs-pos);
+  color: var(--fg-2);
+  margin-top: -0.55rem;
+  margin-bottom: 0.9rem;
+}
+
+/* 문제 / 한 일 / 결과 */
+
+.body dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  gap: 0.5rem 1rem;
+}
+
+.body dt {
+  font-size: var(--fs-dt);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+  padding-top: 0.3rem;
+}
+
+.body dd {
+  margin: 0;
+  font-size: var(--fs-body);
+}
+
+/* 목록 */
+
+.list {
+  margin: 0.2rem 0 1rem;
+  padding-left: 1.1rem;
+}
+
+.list li { margin-bottom: 0.35rem; font-size: var(--fs-body); }
+.list li::marker { color: var(--accent); }
+
+/* 태그 */
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  margin: 1.3rem 0 0;
+  padding: 0;
+}
+
+.tags li {
+  font-size: var(--fs-tag);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  padding: 0.14rem 0.6rem;
+  border-radius: var(--radius-sm);
+}
+
+/* 검증 표시 */
+
+.note {
+  font-size: var(--fs-note);
+  color: var(--fg-2);
+  margin: 0;
+  line-height: 1.7;
+}
+
+.flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--fg);
+  background: var(--chip-bg);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 0.1rem 0.55rem 0.1rem 0.4rem;
+  white-space: nowrap;
+  vertical-align: 0.1em;
+}
+
+.flag svg {
+  width: 0.8em;
+  height: 0.8em;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+/* ── 기술 ───────────────────────────────────── */
+
+.skills {
+  margin: 0;
+  display: grid;
+  grid-template-columns: var(--col-date) 1fr;
+  gap: 0 var(--col-gap);
+}
+
+.skills dt {
+  font-size: var(--fs-date);
+  font-weight: 700;
+  color: var(--fg);
+  padding-top: 0.05rem;
+}
+
+/* dd에 세로선을 둬서 경력 항목의 본문 열과 같은 축에 세운다.
+   행 간격을 margin이 아닌 padding으로 줘야 선이 끊기지 않는다. */
+.skills dd {
+  margin: 0;
+  padding: 0 0 1.25rem 1.6rem;
+  border-left: 1px solid var(--line);
+  font-size: var(--fs-body);
+}
+
+.skills dd:last-child { padding-bottom: 0; }
+
+/* ── 원칙 (반전 종결부) ─────────────────────── */
+
+.principle {
+  background: var(--hero-bg);
+  color: var(--hero-fg);
+  border-top: 1px solid var(--line-soft);
+}
+
+.principle__inner {
+  padding-top: clamp(2.6rem, 3vw + 1.2rem, 4rem);
+  padding-bottom: clamp(2.6rem, 3vw + 1.2rem, 4rem);
+}
+
+.principle h2 {
+  margin: 0 0 1.4rem;
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--hero-fg);
+}
+
+.principle__text {
+  margin: 0;
+  padding-left: 1.5rem;
+  border-left: 2px solid var(--accent);
+  font-size: var(--fs-principle);
+  line-height: 1.75;
+  color: var(--hero-fg-2);
+  max-width: 38rem;
+}
+
+.principle__text strong {
+  font-weight: 800;
+  color: var(--hero-fg);
+}
+
+/* ── 푸터 ───────────────────────────────────── */
+
+.foot {
+  padding-top: 2.4rem;
+  padding-bottom: clamp(3rem, 4vw + 1rem, 5rem);
+  font-size: var(--fs-foot);
+  line-height: 1.75;
+  color: var(--fg-3);
+}
+
+.foot p { margin: 0 0 0.6rem; }
+.foot p:last-child { margin-bottom: 0; }
+.updated { font-variant-numeric: tabular-nums; }
+
+/* ── 좁은 화면 ──────────────────────────────── */
+
+@media (max-width: 34rem) {
+  :root { --col-date: auto; }
+
+  .hero__inner { padding-top: 2.6rem; padding-bottom: 2.2rem; }
+  .hero__foot { grid-template-columns: 1fr; gap: 0.9rem; }
+
+  .item {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding: 0.75rem 0.6rem 2rem 0.6rem;
+    margin: -0.75rem 0 0 -0.6rem;
+  }
+
+  .items--career > .item .meta { flex-direction: row; align-items: baseline; gap: 0.7rem; }
+  .items--career > .item .meta::before { margin-bottom: 0; }
+
+  .skills {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .meta {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.6rem;
+    padding-top: 0;
+    margin-bottom: 0.75rem;
+  }
+
+  .kind::before { display: none; }
+
+  .body {
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  .skills dt {
+    margin-bottom: 0.25rem;
+    padding-top: 0;
+  }
+
+  .skills dd {
+    border-left: 0;
+    padding: 0 0 1.4rem;
+  }
+
+  .skills dd:last-child { padding-bottom: 0; }
+
+  .body dl {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+
+  .body dt {
+    padding-top: 0.7rem;
+    margin-bottom: -0.1rem;
+  }
+
+  .principle__text {
+    padding-left: 1.1rem;
+  }
+}
+
+/* ── 인쇄 ───────────────────────────────────── */
+
+@media print {
+  :root {
+    --bg: #fff; --bg-raised: #fff; --fg: #000; --fg-2: #333;
+    --fg-3: #555; --line: #000; --line-soft: #ccc;
+    --chip-bg: #f2f2f2; --chip-border: #ccc; --accent: #000;
+    --hero-bg: #fff; --hero-fg: #000; --hero-fg-2: #333;
+  }
+  .skip { display: none; }
+  .hero::before { display: none; }
+  .item, .section { break-inside: avoid; }
+  .item:hover { background: none; }
+  .hero, .principle { border-top: 0; border-bottom: 1px solid #000; }
+}
