@@ -993,8 +993,10 @@ export default function Carousel() {
       spinVel = 0;
       dragging = false;
       settling = false;
-      // Back on for a replay — the fade-out below switches it off for good.
-      textGroup.visible = true;
+      // Off until the reveal wants it: pre-reveal every glyph quad drew and
+      // discarded every fragment for the whole birth. The timeline switches
+      // it on at textStart; the fade-out below switches it off for good.
+      textGroup.visible = false;
       // The timeline tweens state.spin, so a pick in flight has to be off the
       // same property before it starts.
       stopPick();
@@ -1071,6 +1073,13 @@ export default function Carousel() {
       const textStart = spreadStart + params.textAt * params.spreadTime;
 
       if (splitText.chars.length) {
+        tl.call(
+          () => {
+            textGroup.visible = true;
+          },
+          [],
+          textStart,
+        );
         tl.fromTo(
           splitText.chars,
           { value: 0 },
@@ -1147,6 +1156,11 @@ export default function Carousel() {
     const startEntry = () => {
       if (disposed || tl) return;
       splitText.build();
+      // The group starts invisible, so without this the glyph uploads (and
+      // mipmap generation) would all land on the reveal's first frame.
+      for (const child of textGroup.children) {
+        renderer.initTexture(child.material.uniforms.uTex.value);
+      }
       tag.build();
       styleMeta();
       replay();
