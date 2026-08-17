@@ -993,6 +993,8 @@ export default function Carousel() {
       spinVel = 0;
       dragging = false;
       settling = false;
+      // Back on for a replay — the fade-out below switches it off for good.
+      textGroup.visible = true;
       // The timeline tweens state.spin, so a pick in flight has to be off the
       // same property before it starts.
       stopPick();
@@ -1098,6 +1100,12 @@ export default function Carousel() {
             duration: params.textOutTime,
             ease: params.textOutEase,
             stagger: params.textStagger,
+            // Faded out is not free: every glyph quad still draws and samples
+            // its texture each frame, only to discard. Drop the whole group
+            // once nothing is visible.
+            onComplete: () => {
+              textGroup.visible = false;
+            },
           },
           Math.max(0, landed + params.textOutAt),
         );
