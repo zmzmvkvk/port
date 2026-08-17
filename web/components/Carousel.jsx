@@ -78,7 +78,11 @@ export default function Carousel() {
     // happen: the context is released explicitly rather than left to GC.
     let renderer;
     try {
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      // No MSAA: everything drawn is a full-screen quad whose edges are
+      // antialiased inside the fragment shader (SDF smoothstep), so the
+      // multisample resolve is pure cost — worst exactly where it matters,
+      // on phone GPUs.
+      renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
     } catch (err) {
       console.error("[ring] could not create a WebGL context:", err);
       return;
