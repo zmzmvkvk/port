@@ -15,3 +15,8 @@ exports/
 
 # Wrangler local state
 .wrangler/
+
+# Autoresearch runtime
+/autoresearch/node_modules/
+/autoresearch/eval/last_result.json
+/autoresearch/backups/

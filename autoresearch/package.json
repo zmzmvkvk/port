@@ -1,0 +1,12 @@
+{
+  "name": "autoresearch-eval",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "measure": "node eval/measure.mjs",
+    "score": "node eval/score.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.0"
+  }
+}

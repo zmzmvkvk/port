@@ -1,0 +1,2 @@
+timestamp	experiment	hypothesis	morph_p95	entry_p95	idle_p95	errors	score	decision	notes
+2026-08-17T13:08Z	000	baseline (frozen)	66.7	83.4	66.7	0	75.93	keep	morph mean 59.24ms; SwiftShader DPR1 CPUx4; harness frozen from here

@@ -1,0 +1,31 @@
+{
+  "comment": "Frozen Metric 환경 정의. 베이스라인 이후 변경 금지.",
+  "server": { "dir": "../../web/out", "port": 4623 },
+  "device": {
+    "comment": "DPR 1: SwiftShader에서 WebGL 바닥 비용을 낮춰 DOM 필터 비용이 메트릭에 드러나게 한다.",
+    "viewport": { "width": 390, "height": 844 },
+    "deviceScaleFactor": 1,
+    "isMobile": true,
+    "hasTouch": true,
+    "cpuThrottle": 4
+  },
+  "routes": [
+    {
+      "path": "/",
+      "name": "carousel-mobile",
+      "checks": {
+        "required_elements": ["canvas", "div[aria-live=polite]"],
+        "no_console_errors": true,
+        "name_label_bottom_right": true
+      },
+      "phases": {
+        "entryTimeoutMs": 40000,
+        "morphCount": 6,
+        "morphWheelDeltaY": 800,
+        "morphTimeoutMs": 9000,
+        "idleSampleMs": 2500
+      }
+    }
+  ],
+  "runs": 2
+}

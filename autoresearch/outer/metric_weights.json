@@ -1,0 +1,16 @@
+{
+  "comment": "Frozen Metric 가중치. form 축은 이 사이트에 폼이 없어 motion 축으로 대체. Outer Loop만 수정 가능.",
+  "weights": {
+    "error": 0.2,
+    "dom": 0.15,
+    "motion": 0.5,
+    "visual": 0.15
+  },
+  "motion": {
+    "comment": "frame ms -> 0..100 선형 매핑. 대표값은 (mean+p95)/2 — vsync 양자화로 p95가 둔감해지는 것을 보정. morph 70% + entry 30%. 모프 miss는 비율로 감점.",
+    "bestMs": 17,
+    "worstMs": 120,
+    "morphShare": 0.7,
+    "entryShare": 0.3
+  }
+}
