@@ -2,3 +2,4 @@ timestamp	experiment	hypothesis	morph_p95	entry_p95	idle_p95	errors	score	decisi
 2026-08-17T13:08Z	000	baseline (frozen)	66.7	83.4	66.7	0	75.93	keep	morph mean 59.24ms; SwiftShader DPR1 CPUx4; harness frozen from here
 2026-08-17T13:12Z	001	H1 coarse pointer: opacity crossfade, no SVG goo/blur	66.7	83.4	66.7	0	76.12	keep	morph mean 59.24->58.1ms; real-device win much larger (filter raster removed)
 2026-08-17T13:14Z	002	H2 antialias:false (SDF shader self-AA)	66.7	83.4	66.7	0	76.18	keep	morph mean 58.1->57.73ms, median 66.5->50.1ms
+2026-08-17T13:16Z	003	H11 alpha:false + setClearColor(page)	66.7	83.4	66.7	0	76.21	keep	compositor per-pixel blend vs DOM removed; idle fps 17.5->17.7

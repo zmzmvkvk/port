@@ -65,9 +65,13 @@ export function createSplitText(group, params) {
 
         const tex = new THREE.CanvasTexture(canvas);
         tex.colorSpace = THREE.NoColorSpace;
-        tex.minFilter = THREE.LinearFilter;
+        // The glyphs are rasterised at up to 4x display size and then drawn
+        // scaled well down, so minification needs mipmaps: without them the
+        // sampler walks the full-resolution bitmap every frame of the reveal
+        // — texture-cache hostile on phone GPUs, and it shimmers.
+        tex.minFilter = THREE.LinearMipmapLinearFilter;
         tex.magFilter = THREE.LinearFilter;
-        tex.generateMipmaps = false;
+        tex.generateMipmaps = true;
 
         const mat = new THREE.ShaderMaterial({
           vertexShader: textVertexShader,
