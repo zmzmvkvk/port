@@ -26,6 +26,16 @@ import { PROJECTS } from "./projects";
 const SIDES = ["left", "right"];
 const SLOTS = 2;
 
+// Phone GPUs cannot rasterise the goo threshold plus a per-frame blur that
+// climbs toward 100px at frame rate — the morph janks exactly when a card
+// lands, which on touch is every swipe. At phone size the melt is barely
+// readable anyway, so coarse-pointer devices get a plain crossfade: opacity
+// only, no filter ever touched. Primary pointer, so a touchscreen laptop
+// driven by its mouse keeps the full effect.
+const CHEAP =
+  typeof window !== "undefined" &&
+  (window.matchMedia?.("(pointer: coarse)")?.matches ?? false);
+
 const slotsOf = (row) => row?.firstElementChild?.children;
 
 // One word's share of a morph. f = 1 present, 0 gone. Opacity falls away far
@@ -35,13 +45,15 @@ const slotsOf = (row) => row?.firstElementChild?.children;
 function fade(el, f, blur) {
   if (!el) return;
   if (f >= 1) {
-    el.style.filter = "none";
+    if (!CHEAP) el.style.filter = "none";
     el.style.opacity = "1";
   } else if (f <= 0) {
     // Cleared as well as hidden, so a spent word is not left holding a 100px
     // blur the compositor has to keep around.
-    el.style.filter = "none";
+    if (!CHEAP) el.style.filter = "none";
     el.style.opacity = "0";
+  } else if (CHEAP) {
+    el.style.opacity = `${f}`;
   } else {
     el.style.filter = `blur(${Math.min(blur / f - blur, 100)}px)`;
     el.style.opacity = `${Math.pow(f, 0.4)}`;
@@ -79,8 +91,10 @@ function createGroup(side, groups, params) {
 
     // Only worth its cost while two words are in play. At rest the threshold
     // hardens glyph edges, and at this size that is the difference between
-    // type that is set and type that is stamped.
-    if (g.goo) {
+    // type that is set and type that is stamped. Never on a coarse pointer —
+    // the crossfade above does not want thresholding and the filter region is
+    // most of a phone screen.
+    if (g.goo && !CHEAP) {
       g.goo.style.filter =
         t >= 1 ? "none" : `url(#name-goo) blur(${params.nameSoften}px)`;
     }
