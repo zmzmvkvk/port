@@ -45,6 +45,12 @@ export function defaultParams() {
     narrowText: 1.5, // type cannot shrink like a picture can and stay readable
     narrowPosX: -1.09,
     narrowEndScale: 4.22,
+    // In this band the ring is wide enough that the side lockups collide with
+    // the front card, so both move to the bottom-right corner — [type . year]
+    // stacked over [number . name] — clear of the arc the cards sweep.
+    narrowMetaRight: 24, // px
+    narrowMetaBottom: 22, // px
+    narrowMetaGap: 1, // vw between the two stacked rows
 
     tightAt: 640, // inclusive
     tightRadius: 0.82, // multiplies narrowRadius

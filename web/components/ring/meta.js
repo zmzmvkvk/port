@@ -167,14 +167,22 @@ export function createMeta(refs, params) {
     );
   };
 
-  // layout: { textK, tight, viewW } — the band state, passed in rather than
-  // read, so this stays a pure function of the window it is told about.
-  const style = ({ textK, tight, viewW }) => {
+  // layout: { textK, tight, narrow, viewW } — the band state, passed in
+  // rather than read, so this stays a pure function of the window it is told
+  // about. Placement per band:
+  //   wide   — lockups flank the ring, vertically centred (they sit in the
+  //            ring's hole and beyond its arc, so the cards never reach them)
+  //   narrow — the ring is most of the screen and the flanks collide with
+  //            the front card, so both lockups stack in the bottom-right
+  //            corner: [type . year] small, over [number . name]
+  //   tight  — the name alone, bottom-right
+  const style = ({ textK, tight, narrow, viewW }) => {
     // Everything downstream is derived from this one figure: the box height,
     // so the filter region, so where the corner offset has to drop the box to.
     const bigVw = params.nameSize * textK * (tight ? params.tightName : 1);
     const big = `${bigVw}vw`;
-    const small = `${params.idxSize * textK}vw`;
+    const smallVw = params.idxSize * textK;
+    const small = `${smallVw}vw`;
     const bigFace = `"${params.nameFont}", ui-sans-serif, system-ui, sans-serif`;
     const smallFace = `"${params.idxFont}", ui-sans-serif, system-ui, sans-serif`;
     const bigWeight = `${params.nameWeight}`;
@@ -188,15 +196,16 @@ export function createMeta(refs, params) {
       if (!g?.box) continue;
       const isRight = side === "right";
 
-      // In the tight band the ring is most of the screen and there is nowhere
-      // for two lockups to sit, so three of the four labels go and the name
-      // alone moves to the bottom-right corner.
-      const corner = tight && !isRight;
       if (tight && isRight) {
         g.box.style.display = "none";
         continue;
       }
       g.box.style.display = "";
+
+      const corner = tight || narrow;
+      // The stacked upper row: [type . year], set small so the name below
+      // keeps the billing.
+      const stacked = corner && isRight;
 
       g.box.style.width = `${corner ? params.tightMetaWidth : params.metaWidth}vw`; // prettier-ignore
       g.box.style.height = `${h}vw`;
@@ -204,13 +213,18 @@ export function createMeta(refs, params) {
       if (corner) {
         // The box is three times the type's height, so placing it at the
         // offset asked for would sit the words half a box too high. Drop it by
-        // the difference and the type lands where the number says.
+        // the difference — measured off this row's own type size — and the
+        // words land where the number says.
         const boxPx = (h * viewW) / 100;
-        const emPx = (bigVw * viewW) / 100;
+        const emPx = ((stacked ? smallVw : bigVw) * viewW) / 100;
+        const right = tight ? params.tightNameRight : params.narrowMetaRight;
+        let bottom = tight ? params.tightNameBottom : params.narrowMetaBottom;
+        // Clear the name row plus a breath, so the pair read as one block.
+        if (stacked) bottom += ((bigVw + params.narrowMetaGap) * viewW) / 100;
         g.box.style.top = "auto";
         g.box.style.left = "auto";
-        g.box.style.right = `${params.tightNameRight}px`;
-        g.box.style.bottom = `${params.tightNameBottom + emPx * 0.5 - boxPx * 0.5}px`;
+        g.box.style.right = `${right}px`;
+        g.box.style.bottom = `${bottom + emPx * 0.5 - boxPx * 0.5}px`;
         g.box.style.transform = "none";
       } else {
         // Cleared rather than set, so the class on the element takes it back.
@@ -234,12 +248,12 @@ export function createMeta(refs, params) {
         const row = layer.firstElementChild;
         row.style.gap = `${isRight ? params.metaGapR : params.metaGapL}vw`;
         const [lead, trail] = row.children;
-        // The number is what goes in the corner layout. Its morph carries on
+        // Only the tight corner drops the number; its morph carries on
         // underneath, so nothing needs resyncing on the way back out.
-        lead.style.display = corner ? "none" : "";
-        lead.style.fontFamily = isRight ? bigFace : smallFace;
-        lead.style.fontSize = isRight ? big : small;
-        lead.style.fontWeight = isRight ? bigWeight : smallWeight;
+        lead.style.display = tight && !isRight ? "none" : "";
+        lead.style.fontFamily = isRight && !stacked ? bigFace : smallFace;
+        lead.style.fontSize = isRight && !stacked ? big : small;
+        lead.style.fontWeight = isRight && !stacked ? bigWeight : smallWeight;
         trail.style.fontFamily = isRight ? smallFace : bigFace;
         trail.style.fontSize = isRight ? small : big;
         trail.style.fontWeight = isRight ? smallWeight : bigWeight;

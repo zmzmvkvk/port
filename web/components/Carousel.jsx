@@ -269,7 +269,12 @@ export default function Carousel() {
     };
 
     const styleMeta = () =>
-      meta.style({ textK, tight: tightNow, viewW: viewW });
+      meta.style({
+        textK,
+        tight: tightNow,
+        narrow: narrowNow,
+        viewW: viewW,
+      });
 
     const resize = () => {
       viewW = container.clientWidth;

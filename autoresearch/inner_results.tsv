@@ -6,3 +6,4 @@ timestamp	experiment	hypothesis	morph_p95	entry_p95	idle_p95	errors	score	decisi
 2026-08-17T13:19Z	004	H-new glyph textures: generateMipmaps + trilinear	66.7	83.4	66.7	0	76.44	keep	morph mean 57.54->56.19ms; helps all phases (glyphs sample every frame)
 2026-08-17T13:21Z	005	H-new textGroup.visible=false after textOut	66.7	83.4	66.7	0	76.68	keep	morph mean 56.19->54.82ms; idle 18.1->18.6fps; spent glyphs no longer draw
 2026-08-17T13:23Z	006	H-new textGroup hidden until textStart + initTexture preupload	66.7	83.4	66.6	0	76.86	keep	entry pctOver33 95.7->95.2; morph/idle delta partly noise; no reveal-frame upload hitch
+2026-08-17T13:46Z	feat-dive	feature (not an experiment): click dives into card, detail layer over art	66.7	83.3	66.6	0	77.41	keep	no frozen-metric regression; smoke: desktop click+ESC, mobile tap+close all pass
