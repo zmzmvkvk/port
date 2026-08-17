@@ -82,7 +82,12 @@ export default function Carousel() {
       // antialiased inside the fragment shader (SDF smoothstep), so the
       // multisample resolve is pure cost — worst exactly where it matters,
       // on phone GPUs.
-      renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });
+      //
+      // Opaque canvas for the same reason: the page behind it is the one
+      // flat colour the shader already knows (uPage), so it is cleared in GL
+      // instead of composited per pixel against the DOM every frame.
+      renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
+      renderer.setClearColor(0xfafafa, 1);
     } catch (err) {
       console.error("[ring] could not create a WebGL context:", err);
       return;
