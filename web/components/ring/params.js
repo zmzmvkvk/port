@@ -56,11 +56,11 @@ export function defaultParams() {
     tightMetaWidth: 70, // vw of box, and so of filter region, around it
 
     // -- geometry, all at the reference window ---------------------------
- planeSize: 90, // long edge in px; aspect locked at 1.5 : 1
- count: PROJECTS.length, // one plane per project, so the deal comes out even
- // 9장 기준: 원본(18장, 340)과 이웃 간 시야각을 비슷하게 맞추려고 반지름을
- // 줄였다. 함께 낮춘 posX가 앞 카드를 화면 중앙 부근에 되돌린다.
- ringRadius: 150,
+    planeSize: 90, // long edge in px; aspect locked at 1.5 : 1
+    count: PROJECTS.length, // one plane per project, so the deal comes out even
+    // 9장 기준: 원본(18장, 340)과 이웃 간 시야각을 비슷하게 맞추려고 반지름을
+    // 줄였다. 함께 낮춘 posX가 앞 카드를 화면 중앙 부근에 되돌린다.
+    ringRadius: 150,
     seed: 0, // where plane 0 sits, degrees (0 = 3 o'clock)
     radial: true, // long edge points outward; off = long edge along the ring
     radius: 6, // corner
@@ -95,6 +95,15 @@ export function defaultParams() {
     moveEase: "power2.inOut",
     moveDelay: 0.2,
 
+    // -- the dive into a card ---------------------------------------------
+    // Clicking the front card flies the view into it: the ring zooms about
+    // that card until it covers the screen, then the detail layer fades in.
+    diveTime: 1.0,
+    diveEase: "power3.inOut",
+    diveOutTime: 0.75,
+    diveOutEase: "power3.inOut",
+    diveCover: 1.06, // how far past the viewport the card grows
+
     // -- scroll / drag / click, live once the entry finishes --------------
     scrollSpeed: 0.0022, // rad/s of angular velocity per px of wheel delta
     damping: 0.94, // velocity kept per 60fps frame
@@ -107,9 +116,9 @@ export function defaultParams() {
     pickEase: "power3.inOut",
 
     // -- the intro heading, in the scene ---------------------------------
- text: "김서준 — Works",
- textSize: 41,
- textFont: "Satoshi",
+    text: "김서준 — Works",
+    textSize: 41,
+    textFont: "Satoshi",
     textWeight: 400,
     textTracking: 0, // em
     textColor: "#0a0a0a",

@@ -66,7 +66,15 @@ export default function Carousel() {
     // spread:   the rest peel off it and the ring draws
     // spin:     whole-ring rotation, radians
     // shift:    the ring moves off centre and resizes
-    const state = { progress: 0, launch: 0, spread: 0, spin: 0, shift: 0 };
+    // dive:     flying into the front card, 0 = ring, 1 = card fills screen
+    const state = {
+      progress: 0,
+      launch: 0,
+      spread: 0,
+      spin: 0,
+      shift: 0,
+      dive: 0,
+    };
     // Read-only panel readouts, so an invalid ring is visible rather than
     // silent and the reference window can be matched to the live one.
     const info = { restingGap: 0, window: "", scale: 1, band: "wide" };
@@ -342,12 +350,9 @@ export default function Carousel() {
       const target = base + Math.round((state.spin - base) / TAU) * TAU;
 
       const slots = Math.abs(target - state.spin) / slot;
-      // Already there — open the project's detail panel instead of turning.
+      // Already there — dive into the card instead of turning.
       if (slots < 0.01) {
-        if (shown >= 0)
-          window.dispatchEvent(
-            new CustomEvent("viscose:open", { detail: shown }),
-          );
+        if (shown >= 0) openCard(i);
         return;
       }
 
@@ -366,6 +371,74 @@ export default function Carousel() {
         },
       });
     };
+
+    /* --------------------------------------------------------------- dive */
+    // Clicking the front card does not open a panel over the ring — the view
+    // flies into the card. The layout loop zooms every plane about the picked
+    // one, so it swallows the screen while its neighbours slide off the
+    // edges; the detail layer only fades in once the art is the whole
+    // backdrop. Closing plays the same flight backwards.
+    let diveI = -1;
+
+    // The DOM type would sit on top of the flight, so it gets out of the way.
+    const fadeChrome = (to) => {
+      const els = [
+        listEl,
+        metaRef.current.left.box,
+        metaRef.current.right.box,
+      ].filter(Boolean);
+      gsap.to(els, {
+        opacity: to,
+        duration: 0.45,
+        ease: "power2.out",
+        overwrite: "auto",
+      });
+    };
+
+    const openCard = (i) => {
+      if (diveI >= 0) return;
+      diveI = i;
+      interactive = false;
+      // Latched now: `shown` cannot change mid-dive, but the panel should
+      // open on what was clicked, not on whatever is front on completion.
+      const opened = shown;
+      gsap.killTweensOf(state, "dive");
+      gsap.to(state, {
+        dive: 1,
+        duration: params.diveTime,
+        ease: params.diveEase,
+        onComplete: () => {
+          window.dispatchEvent(
+            new CustomEvent("viscose:open", { detail: opened }),
+          );
+        },
+      });
+      fadeChrome(0);
+    };
+
+    const closeCard = () => {
+      if (diveI < 0) return;
+      gsap.killTweensOf(state, "dive");
+      gsap.to(state, {
+        dive: 0,
+        duration: params.diveOutTime,
+        ease: params.diveOutEase,
+        onComplete: () => {
+          diveI = -1;
+          interactive = true;
+        },
+      });
+      fadeChrome(1);
+    };
+
+    const onCloseEvent = () => closeCard();
+    // The panel sends viscose:close for its own reasons; Escape here covers
+    // the gap where the dive is in flight and the panel does not exist yet.
+    const onDiveKey = (e) => {
+      if (e.key === "Escape") closeCard();
+    };
+    window.addEventListener("viscose:close", onCloseEvent);
+    window.addEventListener("keydown", onDiveKey);
 
     /* ------------------------------------------------------------ pointer */
     // World px, origin at screen centre, Y up — the space the shader works in,
@@ -845,6 +918,32 @@ export default function Carousel() {
         sideF[i] = 0;
       }
 
+      /* ---- dive ---- */
+      // A camera zoom about the picked card: positions spread away from it
+      // while every plane grows by the same factor, so the picked one swells
+      // in place until it covers the viewport and the rest clear the edges.
+      // Applied on top of the normal layout each frame, so a resize mid-dive
+      // stays covered and the flight home lands exactly where the ring is.
+      const dv = clamp01(state.dive);
+      if (dv > 0 && diveI >= 0) {
+        const cover =
+          Math.max(viewW / Math.max(1, W), viewH / Math.max(1, H)) *
+          params.diveCover;
+        const z = 1 + (cover - 1) * dv;
+        const px0 = uniforms.uPos.value[diveI].x;
+        const py0 = uniforms.uPos.value[diveI].y;
+        for (let i = 0; i < count; i++) {
+          const q = uniforms.uPos.value[i];
+          const s = uniforms.uScale.value[i];
+          q.set(
+            (q.x - px0) * z + px0 * (1 - dv),
+            (q.y - py0) * z + py0 * (1 - dv),
+          );
+          s.x *= z;
+          s.y *= z;
+        }
+      }
+
       over = overI;
       // Both tests, not either: the width covers a small window on a mouse,
       // `coarse` covers a large tablet. Re-tested every frame so a window
@@ -1313,6 +1412,8 @@ export default function Carousel() {
       renderer.setAnimationLoop(null);
 
       window.removeEventListener("resize", onResize);
+      window.removeEventListener("viscose:close", onCloseEvent);
+      window.removeEventListener("keydown", onDiveKey);
       container.removeEventListener("wheel", onWheel);
       container.removeEventListener("pointerdown", onPointerDown);
       container.removeEventListener("pointermove", onPointerMove);
