@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://roomy.page/sitemap.xml
