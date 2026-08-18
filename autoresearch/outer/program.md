@@ -29,6 +29,7 @@ roomy.page(= `web/` Next.js WebGL 캐러셀)에서 **모바일로 볼 때 텍스
 - `web/components/Carousel.jsx`
 - `web/components/ring/params.js`
 - `web/app/globals.css`
+- `web/components/shaders/planeShaders.js` (Ashima/Gustavson 노이즈 고지 블록은 제외)
 
 ## 수정 불가
 
@@ -39,12 +40,31 @@ roomy.page(= `web/` Next.js WebGL 캐러셀)에서 **모바일로 볼 때 텍스
 
 ## 가설 백로그 (한 번에 하나씩)
 
-- H1: 모바일(coarse pointer 또는 tight 밴드)에서는 이름 모프를
-  블러+SVG 필터 대신 순수 opacity 크로스페이드로 대체.
-- H2: WebGL `antialias: false` (셰이더 자체 AA가 있으므로 무손실).
-- H3: 모바일에서 renderer pixel ratio 상한을 2 → 1.5로.
-- H4: `prefers-reduced-motion`이면 모프를 즉시 전환으로.
-- H5: 데스크톱 모프도 blur 상한 100px → 32px로 (임계값 뒤라 시각 차 미미).
+완료 (2026-08-17 ~ 08-18):
+- H1: 모바일 이름 모프를 블러+SVG 대신 opacity/릴레이로. keep.
+- H2: WebGL `antialias: false`. keep.
+- H5: 데스크톱 blur 상한 — goo 멜트 제거로 대체됨 (feat-typo). keep.
+
+리그가 못 보는 것 (점수 안 움직임, 실기기/접근성 작업):
+- H3: 모바일 renderer pixel ratio 상한 2 → 1.5. 리그 DPR 1.
+  → 012 keep. tight에서 `0.75 * min(dpr,2)`로 구현. 실폰은 1.5,
+  하네스 DPR 1은 0.75라 점수가 움직인다 (90.03 → 96.66).
+- H4: `prefers-reduced-motion`이면 모프/엔트리를 즉시 전환.
+  → 009 keep (기본 경로 90.04, 회귀 없음).
+
+다음 Inner (시저 이후 바닥: morph p95 50, entry p95 33.4):
+시저 안은 카드 픽셀이라, 빈 화면을 더 자르는 실험(H6/H11/AABB/MAX_PLANES)은
+이미 discard. 카드 위에서 안 쓰는 필드를 빼는 쪽이 다음 신호.
+
+- H8: 시드 탄생 워블(`uWobble`/snoise)을 끈다. 엔트리 초반만.
+- H9: 엔트리 동안(interactive 전) 허니 링크를 만들지 않는다.
+  후반(링이 커진 뒤) entry p95 33.4→16.7 후보. 펼침 실루엣은 바뀜.
+- H10: tight에서 chromatic fringe만 0. 글래스가 이미 꺼져 있어 무의미.
+- H12: 데스크톱 글래스 유지 + 립 밖 시저. 리그 390이라 점수 안 움직임.
+- H13: 태그 스케일이 0이면 `sdTag`/`fwidth(dTag)`/`tagNormal`을 건너뛴다.
+  하네스(폰)는 태그가 없다. 시각 변화 없음.
+- H14: 포인터가 꺼져 있으면 `toMouse` length를 건너뛴다. 하네스는 포인터 없음.
+- H15: tight에서 goo(uK)를 줄여 픽셀당 플레인 컬 반경을 줄인다.
 
 ## 규칙
 

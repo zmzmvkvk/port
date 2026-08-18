@@ -262,8 +262,10 @@ is missing versus what is deliberate.
    when it last ran. Change the copy without re-running it and the new
    characters fall back to a system face — legible, obviously wrong, and easy
    to miss on a machine that has a good Korean font installed.
-4. **`prefers-reduced-motion` is unhandled.** Six seconds of animated blur with
-   no escape hatch.
+4. **`prefers-reduced-motion` is handled at mount.** The entry snaps to the
+   landed ring, the name relay is a cut, and the heading is skipped. Dive
+   still takes ~0.25s so the detail layer can hand off. Detected once; a
+   mid-session OS toggle does not rebuild the timeline.
 5. **No keyboard control.** Arrow keys should step the ring; the project column
    is `pointer-events-none` and cannot be clicked to jump.
 6. **The content is real now, and some of it is self-reported.** `projects.js`

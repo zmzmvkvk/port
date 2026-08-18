@@ -123,16 +123,47 @@ roomy.page(소스: `web/`, Next.js 정적 export → Cloudflare Pages)에서
      온전히 읽히는 구간과 지워지는 구간을 눈으로 확인. 정지 화면 스크린샷은
      바이트 동일, Frozen Metric 81.89 로 변동 없음.
 
+- Inner Loop 2차 세션 (2026-08-18): 5 실험 2 keep / 3 discard.
+  **이 머신 베이스라인은 77.49** (2회 77.47/77.51). 08-17의 81.89는
+  SwiftShader가 한 vsync 버킷 빨랐던 다른 Chromium — 교차 비교 금지.
+  - 007a H6 죽은 허니 링크 compact — discard (점수 그대로, p95 양자화)
+  - **007 H7 keep 77.49 → 90.03** (확인 89.95 / 90.11). tight 밴드에서
+    글래스 립을 끄고 패스를 링(+헤딩) AABB로 시저. 빈 픽셀이 풀스크린
+    SDF를 돌던 것이 엔트리 p95 83.3의 바닥이었다. entry p95 83.3→33.4,
+    median 66.6→16.7, fps 15.7→50. morph mean 50.2→35.8, p95 66.6→50.
+    데스크톱(wide/narrow)은 시저·글래스 그대로. 헤딩은 AABB에 포함
+    (`shots/entry-390x844.png`, `shots/after-007-*`).
+  - 008a H6를 시저 위에서 재시도 — discard
+  - 008b 회전 AABB로 시저 조이기 — discard (링의 합집합이 폰 화면의 대부분)
+  - 008c MAX_PLANES 32→16 — discard
+  - **009 H4 keep** (점수 90.04, 회귀 없음). `prefers-reduced-motion:
+    reduce`면 엔트리/릴레이는 컷, 헤딩 생략, 다이브만 0.25초. 리그는
+    no-preference라 Frozen Metric에 안 잡힘. 별도 스모크: 엔트리 2.4초
+    (평소 9초), canvas+aria-live, 콘솔 0.
+
+- Inner Loop 3차 세션 (2026-08-18): 4 실험 1 keep / 3 discard.
+  세션 시작 점수 90.03 (007).
+  - 010 H13 태그 SDF 스킵 — discard
+  - 011 H9 엔트리 중 허니 없음 — discard (pctOver33만 내려감)
+  - **012 H3 keep 90.03 → 96.66** (확인 96.62 / 96.71). tight에서
+    `setPixelRatio(0.75 * min(dpr,2))`. 카드 픽셀 수가 모프 p95 50의
+    바닥이었다. morph 50→33.4ms / 28→50fps, entry 33.4→16.8ms.
+    실폰 backing = 1.5 (dpr 2·3 모두 585×1266). 데스크톱·768 태블릿은
+    tight가 아니라 그대로. 하네스 DPR 1 샷은 실제 폰보다 흐리다 —
+    `shots/after-012-mo-dpr2.png`가 실기기에 가깝다.
+
 ## 다음에 손대면 좋을 곳 (모션)
 
 - 다이브 복귀(닫기)는 아직 들어갈 때의 두 박자를 그대로 뒤집기만 한다.
   나갈 때는 카드가 링으로 "떨어져 돌아가는" 편이 자연스러울 수 있다.
 - metaLead 0.45는 이름이 카드보다 살짝 먼저 도착하게 한다. 실기기에서
   보고 0.3~0.5 사이로 조정 (dev 패널 scroll 폴더).
+- 모프 p95 33.4ms가 새 바닥 (16.7이 다음 버킷). 0.75 아래는 실폰
+  선명도가 먼저 무너질 가능성이 크다.
 
 ## 하네스가 못 보는 것 (다음 Outer Loop 후보)
 
-- renderer DPR 상한 (min(dpr,2)) 조정 실험 — 리그가 DPR 1이라 측정 불가.
-  실폰 entry 랙에는 유효할 수 있으나 선명도 트레이드오프 있음.
-- `prefers-reduced-motion` 대응 — 리그가 no-preference 고정이라 점수에
-  반영 안 됨. 접근성 관점에서 별도 작업 권장.
+- renderer DPR 상한은 012로 닫힘. 더 낮추면 (0.5×) 점수는 오르겠지만
+  컷페이퍼 가장자리가 먼저 뭉개진다.
+- 데스크톱 글래스를 유지한 채 립 *밖*만 시저 — 위·아래 밴드가 시저를
+  풀스크린으로 강제해서 한 패스로는 안 됨. 립을 별 패스로 그리면 가능.
