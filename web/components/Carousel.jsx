@@ -60,6 +60,28 @@ export default function Carousel() {
     let disposed = false;
 
     const params = defaultParams();
+    // The entry, the name relay and the dive are the motion. Off, they
+    // become a cut. Detected once at mount: a mid-session toggle would have
+    // to rebuild the timeline, and this is not a control people flick.
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (reduceMotion) {
+      params.holdAfter = 0;
+      params.loaderOut = 0.15;
+      params.launchTime = 0.001;
+      params.spreadTime = 0.001;
+      params.spinTurns = 0;
+      params.spinTime = 0.001;
+      params.moveTime = 0.001;
+      params.moveDelay = 0;
+      params.text = "";
+      params.textOut = false;
+      params.diveTime = 0.28;
+      params.diveOutTime = 0.22;
+      params.wobble = 0;
+      params.nameMorphTime = 0.01;
+    }
     // progress: the seed is born at screen centre
     // launch:   the seed travels out to its place on the ring
     // spread:   the rest peel off it and the ring draws
@@ -1210,7 +1232,7 @@ export default function Carousel() {
       if (loaderEl) gsap.set(loaderEl, { opacity: launchReady ? 0 : 1 });
 
       const tl = gsap.timeline({
-        delay: 0.25,
+        delay: reduceMotion ? 0 : 0.25,
         onComplete: () => {
           interactive = true;
         },
