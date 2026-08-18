@@ -52,12 +52,52 @@ components/
   shaders/
     planeShaders.js    the ring: SDFs, goo, glass lip, tag. ~430 lines of GLSL
     textShaders.js     the per-glyph reveal for the intro heading
+
+scripts/
+  generate-cards.mjs   the nine card images, from the local grok proxy
+  convert-cards.mjs    those masters -> public/NN.webp at 768x512
+  cards-src/           the masters, committed
 ```
 
 `Carousel.jsx` is ~1400 lines and deliberately so. The fit logic, pointer
 handling, layout loop and timeline share about twenty closure variables. They
 have been left together because threading a context object through them reads
 as tidier in a file tree and is harder to follow in an editor.
+
+## The card art
+
+Nine images, `public/01.webp` … `09.webp`, 768x512, packed into one atlas
+(`ring/atlas.js`, cell 512x341 to match the plane's 3:2). They are generated,
+not drawn: `scripts/generate-cards.mjs` posts to a local grok proxy
+(`/v1/images/generations`, OpenAI-shaped, default `127.0.0.1:8300`) and
+`scripts/convert-cards.mjs` turns the masters into the webp the site loads.
+
+```bash
+node scripts/generate-cards.mjs        # all nine
+node scripts/generate-cards.mjs 02 07  # just those two, when one comes out wrong
+node scripts/convert-cards.mjs         # cards-src/*.jpg -> public/*.webp
+```
+
+Generation is not deterministic — the same prompt gives a different picture
+every time — which is why `scripts/cards-src/` is committed. Those masters, not
+the prompts, are what reproduces what is actually on the site.
+
+Two things about the set are load-bearing, and both are easy to undo by
+accident when regenerating one card:
+
+- **One material, one light.** Every card is a cut-paper still life under the
+  same soft daylight, in the same three tones. The set before this one mixed a
+  dark 3D particle render, a flat illustration and a glossy phone mockup, and
+  nine projects read as nine stock images from nine different places. A single
+  new card in a different register puts that back.
+- **The grounds alternate.** Three cream, three near-black, three rust, ordered
+  so no two neighbours on the ring share a ground. The page is `#fafafa`; nine
+  pale cards would dissolve into it, and the ring would lose its rhythm.
+
+Silhouettes are deliberately unlike each other — stack, punched sheet, ring,
+fan, triptych, grid, zigzag, rosette, leaf — because at rest a card is about
+90px wide. Anything with fine detail (a wireframe, a components sheet) reads as
+noise at that size; the earlier set had two of those.
 
 ## The three coordinate ideas
 
