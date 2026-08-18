@@ -31,6 +31,8 @@ const VIEWPORTS = [
   { name: "ta-768x1024", width: 768, height: 1024, mobile: true },
   { name: "ta-1024x768", width: 1024, height: 768, mobile: true },
   { name: "mo-390x844", width: 390, height: 844, mobile: true },
+  { name: "mo-320x568", width: 320, height: 568, mobile: true },
+  { name: "mo-430x932", width: 430, height: 932, mobile: true },
 ];
 
 await mkdir(join(here, "shots"), { recursive: true });

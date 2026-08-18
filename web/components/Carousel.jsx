@@ -789,7 +789,29 @@ export default function Carousel() {
       // is why the window fit rides in here rather than on a dozen params.
       const shift = clamp01(state.shift);
       const g = (1 + (endScale - 1) * shift) * fit;
-      const cx = posX * viewW * 0.5 * shift;
+
+      // Hoisted above the offset, because on a phone the offset has to answer
+      // to how big the ring actually came out.
+      const cardLong = params.planeSize * planeK * g;
+      const ringR = params.ringRadius * radiusK * g;
+
+      let cx = posX * viewW * 0.5 * shift;
+      // Tight: minScale pins the ring's size below about 756px while posX goes
+      // on scaling with the window, so the front card overruns the right edge
+      // — by about 56px on a 390 phone, and worse the narrower it gets. The
+      // offset is a fraction of the window; the overrun is not. So the ring is
+      // pulled left by exactly the overrun, which lands the card being read
+      // against the same inset at any phone width instead of off the screen.
+      if (tightNow && shift > 0) {
+        const halfAcross = (params.radial ? cardLong : cardLong / 1.5) * 0.5;
+        const over =
+          viewW * 0.5 +
+          cx +
+          ringR +
+          halfAcross -
+          (viewW - params.tightInset * fit);
+        if (over > 0) cx -= over * shift;
+      }
       const cy = params.posY * viewH * 0.5 * shift;
 
       // Screen-space centre, for pointer maths. World Y is up, page Y is down.
@@ -802,7 +824,7 @@ export default function Carousel() {
 
       // Anything measured in plane long edges — hover reach, thread reach,
       // side falloff — comes off W, so the narrow bump reaches them for free.
-      const W = params.planeSize * planeK * g;
+      const W = cardLong;
       const H = W / 1.5;
       uniforms.uSize.value.set(W, H);
       // Tracks the plane, not the window: a card 25% bigger with the same
@@ -814,7 +836,7 @@ export default function Carousel() {
       const sepExtent = params.radial ? H : W;
       const faceEdge = params.radial ? W : H;
 
-      const R = params.ringRadius * radiusK * g;
+      const R = ringR;
       const restingGap = 2 * R * Math.sin(step / 2) - sepExtent;
       info.restingGap = Math.round((restingGap / g) * 10) / 10;
       // The whole stretch plays out across this, so it is the yardstick.

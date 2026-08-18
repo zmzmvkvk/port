@@ -58,6 +58,7 @@ export function defaultParams() {
     tightNameBottom: 16, // px
     tightNameRight: 16, // px
     tightMetaWidth: 70, // vw of box, and so of filter region, around it
+    tightInset: 24, // px the front card keeps clear of the right edge
 
     // -- geometry, all at the reference window ---------------------------
     planeSize: 90, // long edge in px; aspect locked at 1.5 : 1
