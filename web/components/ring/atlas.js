@@ -70,8 +70,13 @@ export function buildAtlas(files = IMAGE_FILES, onProgress) {
   let settled = 0;
   const tick = () => onProgress?.(settled / files.length);
 
+  // Used as given. These arrive already resolved — projects.js imports the
+  // art so the bundler can hash it, and what comes back is a rooted URL. The
+  // slash this used to prepend turned that into `//_next/...`, which is
+  // protocol-relative: the browser read `_next` as a hostname and every card
+  // came up blank.
   const fetchInto = (i, priority) =>
-    load(`/${files[i]}`, priority)
+    load(files[i], priority)
       .then((img) => paint(img, i))
       .catch((err) => console.warn("[atlas]", err.message))
       .finally(() => {
