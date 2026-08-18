@@ -1,5 +1,5 @@
 import { MAX_PLANES } from "../shaders/planeShaders";
-import { EASES, WEIGHTS } from "./params";
+import { EASES } from "./params";
 import { TAU } from "./utils";
 
 /**
@@ -126,8 +126,9 @@ export function mountGui(GUI, { params, state, info, actions }) {
   text.add(params, "textSize", 8, 200, 1).onChange(rebuildText);
   text
     // Only families with an @font-face block in globals.css — anything else
-    // silently falls back to system sans and looks like a bug.
-    .add(params, "textFont", ["PP Neue Montreal", "Satoshi", "Geist"])
+    // silently falls back to system sans and looks like a bug. There is one
+    // now, deliberately: the site is set in a single face.
+    .add(params, "textFont", ["Freesentation"])
     .name("family")
     .onChange(rebuildText);
   text.add(params, "textWeight", { Light: 300, Regular: 400 }).onChange(rebuildText); // prettier-ignore
@@ -159,23 +160,15 @@ export function mountGui(GUI, { params, state, info, actions }) {
   onMeta("nameSize", 0.5, 10, 0.01, "name size (vw)");
   onMeta("idxSize", 0.4, 8, 0.01, "number size (vw)");
   onMeta("listSize", 0.3, 4, 0.01, "column size (vw)");
-  meta.add(params, "nameWeight", WEIGHTS).name("name weight").onChange(styleMeta); // prettier-ignore
-  meta.add(params, "idxWeight", WEIGHTS).name("number weight").onChange(styleMeta); // prettier-ignore
-  meta.add(params, "nameMorphTime", 0.1, 4, 0.05).name("morph time");
+  // 서브셋으로 실린 굵기는 400/500 둘뿐이다. 나머지를 고르면 브라우저가
+  // 합성해서 뭉개진 획이 나온다.
+  meta.add(params, "nameWeight", { Regular: 400, Medium: 500 }).name("name weight").onChange(styleMeta); // prettier-ignore
+  meta.add(params, "idxWeight", { Regular: 400, Medium: 500 }).name("number weight").onChange(styleMeta); // prettier-ignore
+  meta.add(params, "nameMorphTime", 0.1, 2, 0.02).name("relay time");
   meta.add(params, "nameEase", EASES).name("ease");
-  meta.add(params, "nameLeave", 0.2, 1, 0.01).name("old word gone by");
-  meta.add(params, "nameArrive", 0.2, 1, 0.01).name("new word set by");
-  meta.add(params, "nameBlur", 0, 40, 0.5).name("smear");
-  meta.add(params, "nameEdge", 8, 800, 1).name("threshold gain").onChange(setThreshold); // prettier-ignore
-  meta.add(params, "nameCut", 0.05, 0.95, 0.01).name("threshold cut").onChange(setThreshold); // prettier-ignore
-  meta.add(params, "nameSoften", 0, 3, 0.05).name("soften");
-  // The coarse-pointer relay. Nothing here does anything on a mouse — the
-  // branch is picked once, off the primary pointer, in ring/meta.js.
-  meta.add(params, "nameMorphCoarse", 0.1, 2, 0.05).name("touch: morph time");
-  meta.add(params, "nameEaseCoarse", EASES).name("touch: ease");
-  meta.add(params, "nameLeaveCoarse", 0.1, 1, 0.01).name("touch: old gone by");
-  meta.add(params, "nameRelayCoarse", 0, 0.9, 0.01).name("touch: new starts");
-  meta.add(params, "nameRise", 0, 1.5, 0.01).name("touch: travel (em)");
+  meta.add(params, "nameLeave", 0.1, 1, 0.01).name("old word gone by");
+  meta.add(params, "nameRelay", 0, 0.9, 0.01).name("new word starts");
+  meta.add(params, "nameRise", 0, 1, 0.01).name("travel (em)");
   // Re-announces whatever is already at the front, so the morph can be watched
   // without spinning to a new card each time.
   meta.add({ again: actions.replayMeta }, "again").name("play again");

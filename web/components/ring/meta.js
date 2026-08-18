@@ -6,64 +6,38 @@ import { clamp01 } from "./utils";
  * The two lockups of type either side of the ring: [number . name] on the
  * left, [type . year] on the right. Both read whatever card is facing front.
  *
- * Changing card melts one set of words into the next. Two copies are stacked,
- * one blurred out as the other blurs in, and the pair run through an alpha
- * threshold that forces every pixel above a cut solid and drops the rest. Two
- * soft edges drifting past each other cross that cut as one shape, which is
- * what makes the words run together and pull apart instead of crossfading.
- * None of it is per-glyph.
+ * Changing card relays one set of words to the next: the word leaving steps up
+ * out of the line as it fades, the word arriving rises into the space it left,
+ * and they only pass each other while both are nearly gone. Two copies of the
+ * pair are stacked so both states exist at once; nothing here is per-glyph.
  *
- * A word that is not actually changing — the same year twice running — is
- * held instead of melted. Holding it in place is not enough on its own: the
- * threshold has to span both layers for them to fuse, so anything inside it
- * gets thresholded whether it moves or not and a held word visibly thickens.
- * So each group carries a third row outside the filtered subtree and paints
- * carried-over words from there.
+ * This used to be a melt — the pair blurred through an SVG alpha threshold so
+ * the words ran together like liquid. It was dropped. At the sizes this type is
+ * set, thresholding two blurred words puts both under the cut through the
+ * middle of every change: the name vanished outright for half a second and came
+ * back as blobs, which is what it looked like. A relay says the same thing —
+ * one card handing over to the next — and stays readable the whole way, so
+ * nothing is animating over the reader's ability to read it.
  *
- * All three rows always hold both words, painted or not. The row is what
- * positions the other word, and a missing one would move it.
+ * A word that is not actually changing — the same year twice running — is held
+ * rather than relayed, so only what changed moves.
+ *
+ * Both rows always hold both words, painted or not. The row is what positions
+ * the other word, and a missing one would move it.
  */
 
 const SIDES = ["left", "right"];
 const SLOTS = 2;
 
-// Phone GPUs cannot rasterise the goo threshold plus a per-frame blur that
-// climbs toward 100px at frame rate — the morph janks exactly when a card
-// lands, which on touch is every swipe. At phone size the melt is barely
-// readable anyway, so coarse-pointer devices never touch a filter and relay
-// the two words past each other instead (see `slide`). Primary pointer, so a
-// touchscreen laptop driven by its mouse keeps the full effect.
-const CHEAP =
-  typeof window !== "undefined" &&
-  (window.matchMedia?.("(pointer: coarse)")?.matches ?? false);
-
 const slotsOf = (row) => row?.firstElementChild?.children;
 
-// One word's share of a morph. f = 1 present, 0 gone. Opacity falls away far
-// slower than the blur climbs, so the word still carries alpha well into its
-// smear — without that there is nothing for the threshold to weld the other
-// one to. Applied per word, not per row, so a held word can be left alone.
-function fade(el, f, blur) {
-  if (!el) return;
-  if (f >= 1) {
-    el.style.filter = "none";
-    el.style.opacity = "1";
-  } else if (f <= 0) {
-    // Cleared as well as hidden, so a spent word is not left holding a 100px
-    // blur the compositor has to keep around.
-    el.style.filter = "none";
-    el.style.opacity = "0";
-  } else {
-    el.style.filter = `blur(${Math.min(blur / f - blur, 100)}px)`;
-    el.style.opacity = `${Math.pow(f, 0.4)}`;
-  }
-}
-
-// The coarse-pointer half of the same job. No filter is ever touched here, so
-// nothing welds and two words at once can only read as two words: they take
-// turns instead. `dir` is which way this one travels — the word leaving steps
-// up out of the line, the word arriving rises into it — and the opacity is
-// smoothstepped so the sliver where they pass is faint at both ends.
+// One word's share of a relay. f = 1 in place, 0 gone; `dir` is which way it
+// travels, so the word leaving goes up and the word arriving comes from below.
+// Opacity is smoothstepped, which keeps the sliver where the two pass faint at
+// both ends — the one thing that would read as two names at once.
+//
+// Only opacity and transform, never a filter: both ride the compositor, so the
+// morph costs the same on a phone as it does on a desktop.
 function slide(el, f, dir, rise) {
   if (!el) return;
   if (f <= 0) {
@@ -93,44 +67,27 @@ function createGroup(side, groups, params) {
     if (!g) return;
     const out = slotsOf(g.layers[0]);
     const into = slotsOf(g.layers[1]);
-    const held = slotsOf(g.plain);
     const t = m.t;
 
     for (let j = 0; j < SLOTS; j++) {
       if (moving[j]) {
-        if (CHEAP) {
-          const gone = clamp01(t / params.nameLeaveCoarse);
-          const relay = Math.max(0.05, 1 - params.nameRelayCoarse);
-          slide(out?.[j], 1 - gone, -1, params.nameRise);
-          slide(
-            into?.[j],
-            clamp01((t - params.nameRelayCoarse) / relay),
-            1,
-            params.nameRise,
-          );
-        } else {
-          // Asymmetric on purpose — see nameLeave/nameArrive in params.js. The
-          // word arriving is set before the word leaving is spent, so the pair
-          // never sit at half strength together and drop under the threshold.
-          fade(out?.[j], 1 - clamp01(t / params.nameLeave), params.nameBlur);
-          fade(into?.[j], clamp01(t / params.nameArrive), params.nameBlur);
-        }
-        if (held?.[j]) held[j].style.opacity = "0";
+        const relay = Math.max(0.05, 1 - params.nameRelay);
+        slide(out?.[j], 1 - clamp01(t / params.nameLeave), -1, params.nameRise);
+        slide(
+          into?.[j],
+          clamp01((t - params.nameRelay) / relay),
+          1,
+          params.nameRise,
+        );
       } else {
+        // Carried over unchanged. It sits in the arriving row at full strength
+        // and simply never moves, so a year that repeats does not flicker.
         if (out?.[j]) out[j].style.opacity = "0";
-        if (into?.[j]) into[j].style.opacity = "0";
-        if (held?.[j]) held[j].style.opacity = "1";
+        if (into?.[j]) {
+          into[j].style.opacity = "1";
+          into[j].style.transform = "none";
+        }
       }
-    }
-
-    // Only worth its cost while two words are in play. At rest the threshold
-    // hardens glyph edges, and at this size that is the difference between
-    // type that is set and type that is stamped. Never on a coarse pointer —
-    // the crossfade above does not want thresholding and the filter region is
-    // most of a phone screen.
-    if (g.goo && !CHEAP) {
-      g.goo.style.filter =
-        t >= 1 ? "none" : `url(#name-goo) blur(${params.nameSoften}px)`;
     }
   };
 
@@ -138,7 +95,7 @@ function createGroup(side, groups, params) {
   // the big half depends on the side and is decided in style() below.
   const set = (parts) => {
     const g = groups[side];
-    if (!g?.layers[0] || !g.layers[1] || !g.plain) return;
+    if (!g?.layers[0] || !g.layers[1]) return;
     gsap.killTweensOf(m);
 
     // A change landing mid-morph finishes the one in flight first, so the next
@@ -152,11 +109,9 @@ function createGroup(side, groups, params) {
 
     const out = slotsOf(g.layers[0]);
     const into = slotsOf(g.layers[1]);
-    const held = slotsOf(g.plain);
     for (let j = 0; j < SLOTS; j++) {
       if (out?.[j]) out[j].textContent = prev[j];
       if (into?.[j]) into[j].textContent = next[j];
-      if (held?.[j]) held[j].textContent = next[j];
     }
     prev = next;
 
@@ -172,8 +127,8 @@ function createGroup(side, groups, params) {
     draw();
     gsap.to(m, {
       t: 1,
-      duration: CHEAP ? params.nameMorphCoarse : params.nameMorphTime,
-      ease: CHEAP ? params.nameEaseCoarse : params.nameEase,
+      duration: params.nameMorphTime,
+      ease: params.nameEase,
       onUpdate: draw,
     });
   };
@@ -182,24 +137,13 @@ function createGroup(side, groups, params) {
 }
 
 /**
- * refs: { groups, list, loader, cut, live } — DOM handed over from the
+ * refs: { groups, list, loader, live } — DOM handed over from the
  * component. `groups` is the shape the JSX populates, one entry per side.
  */
 export function createMeta(refs, params) {
-  const { groups, list, loader, cut, live } = refs;
+  const { groups, list, loader, live } = refs;
   const left = createGroup("left", groups, params);
   const right = createGroup("right", groups, params);
-
-  // Only the alpha row does any work; colour passes straight through.
-  const setThreshold = () => {
-    cut?.setAttribute(
-      "values",
-      `1 0 0 0 0
-       0 1 0 0 0
-       0 0 1 0 0
-       0 0 0 ${params.nameEdge} ${-params.nameEdge * params.nameCut}`,
-    );
-  };
 
   // layout: { textK, tight, narrow, viewW } — the band state, passed in
   // rather than read, so this stays a pure function of the window it is told
@@ -275,7 +219,7 @@ export function createMeta(refs, params) {
 
       // All three rows, the steady one included. They have to agree exactly or
       // a word would jump as it moved between them.
-      for (const layer of [...g.layers, g.plain]) {
+      for (const layer of g.layers) {
         if (!layer) continue;
         layer.style.justifyContent =
           corner || isRight ? "flex-end" : "flex-start";
@@ -303,8 +247,6 @@ export function createMeta(refs, params) {
       loader.style.fontSize = small;
       loader.style.fontWeight = smallWeight;
     }
-
-    setThreshold();
   };
 
   // Both groups in one call, so the number can never drift from the name it
@@ -324,5 +266,5 @@ export function createMeta(refs, params) {
     gsap.killTweensOf(right.m);
   };
 
-  return { show, style, setThreshold, dispose };
+  return { show, style, dispose };
 }

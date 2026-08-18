@@ -24,35 +24,22 @@ SOFTWARE.
 
 This license covers the source code only.
 
-The contents of `public/` are NOT covered by it:
+The bundled assets are NOT covered by it:
 
-  - PP Neue Montreal (`public/ppneuemontreal-book.otf`) is a commercial
-    typeface by Pangram Pangram. It is bundled here for local development and
-    evaluation only. It is not licensed by this project, must not be used for
-    commercial purposes, and no rights to it are granted by the terms above.
-    Buy a licence from the foundry, or substitute another face.
+  - Freesentation (`web/app/fonts/*.woff2`, cut from
+    `web/scripts/fonts-src/*.ttf`) is licensed under the SIL Open Font
+    Licence 1.1. Copyright 2024 PT&. https://scripts.sil.org/OFL
+    Latin drawn from Roboto by Christian Robertson; Hangul from Noto Sans CJK
+    (Source Han Sans) by Jang Soo-young and Kang Joo-yeon, Sandoll
+    Communications; combined and redrawn as Freesentation by Lee Juim, PT&,
+    PTKKUN. The shipped files are subsets — the name table keeps the original
+    copyright and licence entries, as the OFL requires.
 
-  - Satoshi (`public/Satoshi-*.otf`) is licensed under the Indian Type
-    Foundry Free Font Licence via Fontshare — free for personal and
-    commercial use.
-
-  - Geist (`public/Geist-Regular.ttf`) is licensed under the SIL Open Font
-    Licence 1.1. Copyright 2024 The Geist Project Authors.
-    https://github.com/vercel/geist-font
-
-  - Project imagery (`public/*.webp`) is not mine. It was collected
-    from Behance, more or less at random, purely so there was real work to
-    build and judge the layout against. I claim no ownership of any of it, no
-    licence over it is granted by the terms above, and its use here is not an
-    endorsement of reusing it. Anyone forking this should replace it with
-    their own work.
-
-    If you made one of these pieces and would like to be credited, or would
-    like it taken down, please open an issue on the repository and I will
-    sort it out.
-
-    The project names, disciplines and years shown alongside the images are
-    invented placeholders and are not claims about who made what.
+  - Card imagery (`web/components/ring/cards/*.webp`, masters in
+    `web/scripts/cards-src/`) was generated for this site with an image model,
+    from the prompts in `web/scripts/generate-cards.mjs`. It is not collected
+    from anyone else's work. No warranty is made about it and the MIT grant
+    above does not extend to it.
 
 Third-party code included in this repository:
 

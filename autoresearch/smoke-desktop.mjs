@@ -1,5 +1,9 @@
-// 일회용 데스크톱 회귀 스모크: fine 포인터에서 goo 블러 모프가 그대로
-// 살아있는지, 콘솔 에러가 없는지 확인한다. Frozen Metric 아님.
+// 일회용 데스크톱 회귀 스모크: fine 포인터에서 이름 릴레이가 도는지, 그리고
+// 필터가 두 번 다시 켜지지 않는지 확인한다. Frozen Metric 아님.
+//
+// 예전에는 반대를 확인했다 — goo 블러 모프가 살아있는지. 그 모프는 중간에
+// 이름이 통째로 사라졌다가 덩어리로 돌아와서 걷어냈고, 그래서 이 스모크가
+// 지키는 것도 뒤집혔다: 낱말은 opacity 와 transform 으로만 움직여야 한다.
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { join, extname, dirname, resolve } from "node:path";
@@ -42,20 +46,33 @@ await page.evaluate(() => {
     new WheelEvent("wheel", { deltaY: 800, cancelable: true, bubbles: true }),
   );
 });
-// 데스크톱은 goo 필터가 켜져야 정상
-let sawGoo = false;
-try {
-  await page.waitForFunction(
-    () => {
-      for (const g of document.querySelectorAll('span[style*="will-change"]'))
-        if ((g.style.filter || "").includes("url(")) return true;
-      return false;
-    },
-    { timeout: 8000, polling: 30 },
-  );
-  sawGoo = true;
-} catch {}
+// 낱말이 실제로 움직였는지: 분수 opacity + translate 가 잡혀야 한다.
+// 동시에 filter 는 한 번도 켜지면 안 된다.
+let relayed = false;
+let sawFilter = false;
+const deadline = Date.now() + 8000;
+while (Date.now() < deadline) {
+  const seen = await page.evaluate(() => {
+    let moving = false;
+    let filtered = false;
+    for (const g of document.querySelectorAll('span[style*="will-change"]')) {
+      for (const s of g.querySelectorAll("span")) {
+        if (s.children.length) continue;
+        const o = parseFloat(s.style.opacity);
+        const tr = s.style.transform || "";
+        if (!Number.isNaN(o) && o > 0.02 && o < 0.98 && tr.includes("translate")) moving = true;
+      }
+      if ((g.style.filter || "").includes("url(")) filtered = true;
+    }
+    for (const s of document.querySelectorAll("span"))
+      if ((s.style.filter || "").includes("blur(")) filtered = true;
+    return { moving, filtered };
+  });
+  if (seen.moving) relayed = true;
+  if (seen.filtered) sawFilter = true;
+  if (relayed && Date.now() > deadline - 7000) break;
+}
 
-console.log(JSON.stringify({ desktopGooMorph: sawGoo, consoleErrors: errors }, null, 2));
+console.log(JSON.stringify({ desktopRelay: relayed, anyFilter: sawFilter, consoleErrors: errors }, null, 2));
 await browser.close();
 server.close();

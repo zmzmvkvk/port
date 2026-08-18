@@ -6,7 +6,7 @@ non-obvious in ways that look like bugs.
 
 ## What this is
 
-A single-page portfolio carousel. Eighteen project cards sit on a ring that is
+A single-page portfolio carousel. Nine project cards sit on a ring that is
 mostly off-screen to the left; you see an arc of it. Scroll, drag or swipe
 turns the ring, and it snaps so a card faces front. The cards are not DOM
 elements or textured quads — the whole ring is **one full-screen fragment
@@ -41,7 +41,7 @@ components/
   Carousel.jsx        the component. renderer, resize/fit, input, spin
                        physics, the per-frame layout loop, the entry timeline
   ring/
-    projects.js        the eighteen projects, in ring order
+    projects.js        the nine projects, in ring order
     params.js          every tunable, as a factory
     utils.js           TAU/DEG, easings, signedOffset, chase
     atlas.js           packs all art into one texture, incrementally
@@ -85,7 +85,7 @@ already — `atlas.js` uses it verbatim, and prepending a slash to it produces
 ```bash
 node scripts/generate-cards.mjs        # all nine
 node scripts/generate-cards.mjs 02 07  # just those two, when one comes out wrong
-node scripts/convert-cards.mjs         # cards-src/*.jpg -> public/*.webp
+node scripts/convert-cards.mjs         # cards-src/*.jpg -> ring/cards/*.webp
 ```
 
 Generation is not deterministic — the same prompt gives a different picture
@@ -186,13 +186,23 @@ reads 100, and nothing else opens that gate. The counter reads
 `min(load progress, birth progress)` so it cannot finish early and leave a
 number sitting on 100 waiting for a condition nobody told the viewer about.
 
-**The meta morph needs three rows per side, not two.** Two stacked copies melt
-into each other through an alpha threshold. The threshold must span both layers
-for them to fuse, so anything inside it gets thresholded whether it is moving
-or not — a word carried over unchanged (the same year twice running) would
-visibly thicken for the length of the morph. Hence a third row outside the
-filtered subtree. All three rows always carry all the words, painted or not,
-because the row is what positions the others.
+**The meta relay uses two rows per side, and the held word lives in the
+arriving one.** Each side stacks two copies of the [number . name] pair. On a
+card change the leaving copy fades and steps up, the arriving copy rises into
+its place, and they cross only while both are nearly transparent. A word that
+did not actually change — the same year twice running — is not animated at all:
+it sits in the arriving row at full opacity and never moves. Both rows always
+carry both words, painted or not, because the row is what positions the other
+word.
+
+There used to be a third row and an SVG alpha threshold: the two copies blurred
+into each other and the threshold welded them, and the extra row existed to
+keep a carried-over word outside the filter so it would not visibly thicken.
+That whole mechanism is gone. At the size this type is set, thresholding two
+blurred words put both under the cut through the middle of every change — the
+name disappeared for about half a second and came back as blobs. Removing it
+also took ~16ms off the p95 frame in the morph *and* at rest, because the
+filter subtree cost the compositor even when nothing was moving.
 
 **The side-card focus is one frame stale, deliberately.** The hit test that
 decides which card is hovered runs _inside_ the layout loop, but every plane
@@ -247,21 +257,21 @@ is missing versus what is deliberate.
 1. **Clicking a card centres it but nothing opens.** The "View" tag promises a
    destination that does not exist. `pick()` returns early when the card is
    already at the front — that early return is where navigation belongs.
-2. **Fonts are `.otf`/`.ttf`, ~340 KB.** Converting to `woff2` would cut that
-   by roughly 60%. PP Neue Montreal is also gitignored, so the heading falls
-   back on a fresh clone — see below.
-3. **The art is webp but still oversized.** ~3.3 MB across eighteen files. The
-   atlas downsamples every one to a 512px cell, so resizing the sources to
-   match would cut it again by a large margin.
+2. **The webfont subset is only as current as the last run.** `app/fonts/*`
+   holds exactly the characters `scripts/subset-fonts.py` found in the source
+   when it last ran. Change the copy without re-running it and the new
+   characters fall back to a system face — legible, obviously wrong, and easy
+   to miss on a machine that has a good Korean font installed.
 4. **`prefers-reduced-motion` is unhandled.** Six seconds of animated blur with
    no escape hatch.
 5. **No keyboard control.** Arrow keys should step the ring; the project column
    is `pointer-events-none` and cannot be clicked to jump.
-6. **All the sample data is placeholder.** Every `type` and `year` in
-   `projects.js` is invented and names marked `(*)` are guesses. The images
-   are other people's work, collected from Behance to build the layout
-   against — not the author's, not licensed, and flagged as such in the README
-   and LICENSE. Do not present them as portfolio work or strip those notices.
+6. **The content is real now, and some of it is self-reported.** `projects.js`
+   carries actual career data, not the template's placeholders, and the card
+   art is generated for this site rather than collected from anyone else. Two
+   claims are marked `(자기보고)` in the copy because no evidence backs them
+   yet — keep that marking honest, and keep the wording in step with
+   `data/claims.json` in the repo root.
 7. **Phone widths are approximate.** The `tight` band was tuned at the 640 end
    of its range. Below ~500px `minScale` pins the ring's size while `posX`
    keeps scaling, so the front card drifts back toward centre.
@@ -270,12 +280,13 @@ is missing versus what is deliberate.
 
 Two things to respect when adding files.
 
-**PP Neue Montreal is bundled but not licensed.** `public/ppneuemontreal-book.otf`
-is a commercial Pangram Pangram face, kept in the repo so the design renders
-during development. It is called out in the README and LICENSE as development
-only, not for commercial use. Do not quietly widen its use, do not remove the
-notices, and if you swap the heading to a free face, take the file out with it.
-Satoshi (ITF Free Font Licence) and Geist (OFL) have no such restriction.
+**The bundled face is OFL, and the subset has to keep saying so.**
+Freesentation (PT&) is SIL Open Font Licence 1.1, which allows bundling and
+redistribution but requires the notice to travel with the files. Subsetting
+strips the `name` table by default, so `scripts/subset-fonts.py` passes
+`name_IDs=["*"]` to keep the copyright and licence entries in the woff2. If you
+change how the subset is cut, check they survived. Attribution also sits in
+LICENSE and `scripts/fonts-src/README.md`.
 
 **Keep third-party attribution intact.** The simplex noise in
 `planeShaders.js` carries an MIT notice that has to travel with the code. If

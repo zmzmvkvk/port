@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { PROJECTS } from "./ring/projects";
 
-const SATOSHI = '"Satoshi", ui-sans-serif, system-ui, sans-serif';
-const GEIST = '"Geist", ui-sans-serif, system-ui, sans-serif';
+// 한 서체로 통일한다. 이름과 숫자가 다른 서체였을 때는 라틴과 한글이
+// 서로 다른 드로잉에서 왔고, 한글 쪽은 아예 시스템 폰트로 떨어졌다.
+const FACE = '"Freesentation", ui-sans-serif, system-ui, sans-serif';
 const IN = "cubic-bezier(.16,.84,.44,1)";
 
 /**
@@ -86,7 +87,7 @@ export default function DetailPanel() {
         aria-modal="true"
         aria-label={project.name}
         onClick={(e) => e.stopPropagation()}
-        style={{ fontFamily: SATOSHI }}
+        style={{ fontFamily: FACE }}
         className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center gap-8 px-6 py-16 sm:px-8"
       >
         <header
@@ -94,7 +95,7 @@ export default function DetailPanel() {
           className="flex items-baseline justify-between gap-4"
         >
           <p
-            style={{ fontFamily: GEIST }}
+            style={{ fontFamily: FACE }}
             className="text-sm tracking-[0.02em] text-black/50"
           >
             <span className="text-[#a2542f]">
@@ -121,7 +122,7 @@ export default function DetailPanel() {
             {project.name}
           </h2>
           <p
-            style={{ fontFamily: GEIST }}
+            style={{ fontFamily: FACE }}
             className="mt-3 text-sm text-black/45"
           >
             {project.period}
@@ -147,7 +148,7 @@ export default function DetailPanel() {
           {project.tags.map((tag) => (
             <li
               key={tag}
-              style={{ fontFamily: GEIST }}
+              style={{ fontFamily: FACE }}
               className="rounded-full border border-black/10 px-3 py-1 text-xs text-black/55"
             >
               {tag}

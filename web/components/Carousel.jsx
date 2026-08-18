@@ -43,13 +43,12 @@ export default function Carousel() {
   const itemsRef = useRef([]);
   const loaderRef = useRef(null);
   const liveRef = useRef(null);
-  const cutRef = useRef(null);
-  // Per side: the box that positions the lockup, the filtered wrapper the goo
-  // happens inside, the two rows that melt within it, and one more row outside
-  // for words carrying over unchanged. See ring/meta.js.
+  // Per side: the box that positions the lockup, a wrapper that promotes the
+  // pair onto its own layer, and the two rows that relay within it. See
+  // ring/meta.js.
   const metaRef = useRef({
-    left: { box: null, goo: null, layers: [], plain: null },
-    right: { box: null, goo: null, layers: [], plain: null },
+    left: { box: null, pair: null, layers: [] },
+    right: { box: null, pair: null, layers: [] },
   });
 
   useEffect(() => {
@@ -182,7 +181,6 @@ export default function Carousel() {
         groups: metaRef.current,
         list: listEl,
         loader: loaderEl,
-        cut: cutRef.current,
         live: liveRef.current,
       },
       params,
@@ -1546,7 +1544,7 @@ export default function Carousel() {
         ref={listRef}
         aria-label="Projects"
         style={{
-          fontFamily: '"Satoshi", ui-sans-serif, system-ui, sans-serif',
+          fontFamily: '"Freesentation", ui-sans-serif, system-ui, sans-serif',
         }}
         className="pointer-events-none fixed right-[12vw] top-[2.4vh] z-10 flex flex-col items-start text-right leading-[1.4] tracking-[0.01em] text-[#0a0a0a] opacity-0 max-sm:hidden"
       >
@@ -1565,9 +1563,8 @@ export default function Carousel() {
         ))}
       </ul>
 
-      {/* Three rows per side, identical in structure and all carrying both
-          words: two inside the filtered wrapper that melt into each other, and
-          one outside it for words carrying over unchanged. Which row paints
+      {/* Two rows per side, identical in structure and both carrying both
+          words: one relays out while the other relays in. Which row paints
           what is decided per change — see ring/meta.js.
 
           Hidden from the accessibility tree; a card is announced once, in
@@ -1595,12 +1592,15 @@ export default function Carousel() {
           >
             <span
               ref={(el) => {
-                metaRef.current[side].goo = el;
+                metaRef.current[side].pair = el;
               }}
               className="absolute inset-0"
-              // Promoted up front, so switching the goo on and off is not also
-              // a compositor layer being created and thrown away.
-              style={{ willChange: "filter" }}
+              // Promoted up front rather than at the start of each relay, so a
+              // card change is not also a compositor layer being created and
+              // thrown away. The frozen eval reads the morph window off this
+              // attribute (autoresearch/eval/measure.mjs) — see the note in
+              // autoresearch.md before removing it.
+              style={{ willChange: "transform, opacity" }}
             >
               {[0, 1].map((i) => (
                 <span
@@ -1615,15 +1615,6 @@ export default function Carousel() {
                 </span>
               ))}
             </span>
-            <span
-              ref={(el) => {
-                metaRef.current[side].plain = el;
-              }}
-              className="absolute inset-0 flex items-center"
-              style={{ justifyContent: justify }}
-            >
-              {row}
-            </span>
           </div>
         );
       })}
@@ -1636,37 +1627,6 @@ export default function Carousel() {
       />
 
       <div ref={liveRef} aria-live="polite" className="sr-only" />
-
-      {/* Alpha multiplied up hard and biased down, so a pixel is either fully
-          opaque or gone. That is what fuses two blurred words into one
-          silhouette instead of laying them over each other. Region is
-          oversized because the blur bleeds well outside the text's own box. */}
-      <svg
-        aria-hidden="true"
-        className="pointer-events-none absolute h-0 w-0"
-        focusable="false"
-      >
-        <defs>
-          <filter
-            id="name-goo"
-            x="-20%"
-            y="-100%"
-            width="140%"
-            height="300%"
-            colorInterpolationFilters="sRGB"
-          >
-            <feColorMatrix
-              ref={cutRef}
-              in="SourceGraphic"
-              type="matrix"
-              values="1 0 0 0 0
-                      0 1 0 0 0
-                      0 0 1 0 0
-                      0 0 0 255 -140"
-            />
-          </filter>
-        </defs>
-      </svg>
     </>
   );
 }
