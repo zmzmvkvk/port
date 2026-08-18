@@ -50,9 +50,6 @@ Then open <http://localhost:3000>.
 
 Built with Next.js 16 (App Router), React 19, Three.js, GSAP and Tailwind v4.
 
-> **PP Neue Montreal is bundled for development only** and is not licensed for
-> commercial use by this project. See [Fonts](#fonts).
-
 ## What you can interact with
 
 - **Scroll or drag** to turn the ring. It has momentum and snaps to the
@@ -127,28 +124,36 @@ people's work** collected to build the layout against. See
 
 ### Fonts
 
-Three families, declared in `app/globals.css` and looked up **by name** from
-`components/ring/params.js` — so if you swap one, change it in both places.
+One family, declared in `app/globals.css` and looked up **by name** from
+`components/ring/params.js` — so if you swap it, change it in both places.
 
 | Family           | Used for                               | Weights  | Licence                                                |
 | ---------------- | -------------------------------------- | -------- | ------------------------------------------------------ |
-| Satoshi          | project name, discipline, index column | 400, 500 | [Fontshare](https://fontshare.com/fonts/satoshi), free |
-| Geist            | number, year, load counter             | 400      | [OFL](https://github.com/vercel/geist-font)            |
-| PP Neue Montreal | intro heading, cursor tag              | 400      | Pangram Pangram, **commercial**                        |
+| Freesentation    | everything — name, number, year, heading, column, detail | 400, 500 | [OFL 1.1](https://scripts.sil.org/OFL), PT& |
+
+> One family, not three. The pairing this started from set Latin in Satoshi
+> and figures in Geist — neither of which draws Hangul, so every Korean name on
+> the ring was quietly falling through to whatever the reader's system had.
+> Freesentation covers Latin, Hangul and figures in one drawing.
+
+The shipped files are **subsets**, cut to the characters the site actually
+contains by `scripts/subset-fonts.py` — 53 KB a weight instead of 2.5 MB. That
+matters more than usual here: the entry timeline waits on `document.fonts.ready`
+before it starts.
+
+```bash
+python scripts/subset-fonts.py   # needs: pip install fonttools brotli
+```
 
 > [!IMPORTANT]
-> **PP Neue Montreal is not licensed by this project.** It is a commercial
-> typeface from [Pangram Pangram](https://pangrampangram.com/products/neue-montreal)
-> and the file is included here **for local development and evaluation only**.
-> It is **not** covered by this repo's MIT licence and **must not be used for
-> commercial purposes**. If you ship anything with it, buy your own licence —
-> or swap `textFont` in `params.js` for Satoshi, which is free for commercial
-> work and already included.
+> **Re-run that after changing any copy.** The subset only holds the characters
+> that were in the source when it last ran; anything new falls back to a system
+> face, which is legible and obviously wrong. The masters stay in
+> `scripts/fonts-src/` for exactly this.
 
-Satoshi and Geist are both free to redistribute and use commercially.
-
-> Fonts are served as `.otf`/`.ttf` (~340 KB total). Converting to `woff2`
-> would cut that by roughly 60% — worth doing before this goes anywhere real.
+Freesentation is SIL OFL 1.1 and free to redistribute and use commercially. The
+subset keeps the original copyright and licence entries in its `name` table, as
+the licence requires.
 
 ## How it's put together
 
@@ -242,25 +247,29 @@ Issues and pull requests are welcome.
 
 ## License
 
-[MIT](LICENSE) for the source code. **Not** for anything in `public/`.
+[MIT](LICENSE) for the source code. **Not** for the bundled font or the card
+artwork.
 
 ### About the artwork
 
-The project images are **not mine**. I picked them up from Behance, more or
-less at random, purely so there was real work to build and judge the layout
-against — a carousel full of grey rectangles tells you nothing about whether
-the thing looks good.
+The nine card images are generated for this site, from the prompts in
+`scripts/generate-cards.mjs`, and the masters are in `scripts/cards-src/`. They
+are not collected from anyone else's work — the version of this template these
+started from carried images picked up from Behance, and those are gone.
 
-I claim no ownership of any of it, the MIT licence above does not extend to
-it, and none of this is an endorsement of reusing it. If you fork this,
-replace the images with your own work.
+Regenerating is per-card, because one usually comes out wrong while the rest
+are fine:
 
-The names, disciplines and years shown next to them are invented placeholders
-and are not claims about who made what.
+```bash
+node scripts/generate-cards.mjs 07   # just that one
+node scripts/convert-cards.mjs       # masters -> components/ring/cards/*.webp
+```
 
-> **If you made one of these pieces** and would like to be credited, or would
-> like it removed, please [open an issue](../../issues) and I'll sort it out
-> straight away.
+They read as one set on purpose — one material, one light, three tones, and
+grounds that alternate so no two neighbours on the ring match. `AGENTS.md` has
+the reasoning; it is easy to undo by regenerating a single card against a
+different prompt.
 
-The bundled PP Neue Montreal is likewise not licensed by this project — see
-[Fonts](#fonts).
+The names, disciplines and years shown next to them are real career data, not
+placeholders. Two claims are marked `자기보고` because nothing yet backs them
+up; keep that marking honest.

@@ -41,19 +41,24 @@ await page.waitForTimeout(1500);
 
 // 왼쪽 락업(번호·이름) 세 행의 텍스트/불투명도를 매 rAF 기록한다.
 const trace = await page.evaluate(async () => {
-  const boxes = [...document.querySelectorAll('div[aria-hidden="true"]')]
-    .filter((d) => d.className.includes("fixed") && d.querySelector("span span span"));
-  const box = boxes[0];
-  const goo = box.children[0];
-  const rows = [goo.children[0], goo.children[1], box.children[1]];
-  const read = () => rows.map((r) => {
-    const slots = [...r.firstElementChild.children];
-    return slots.map((s) => ({
-      t: s.textContent,
-      o: +(+getComputedStyle(s).opacity).toFixed(3),
-      f: getComputedStyle(s).filter,
-    }));
-  });
+  // 락업 박스 안의 말단 span 이 낱말이다. 행이 몇 겹으로 감싸여 있든
+  // (goo 시절 3행 -> 지금 2행) 이 방식은 그대로 읽힌다.
+  const box = [...document.querySelectorAll('div[aria-hidden="true"]')]
+    .filter((d) => d.className.includes("fixed") && d.querySelector("span span span"))[0];
+  const words = () => [...box.querySelectorAll("span")].filter((s) => !s.children.length);
+  // 왼쪽 락업은 [번호, 이름] 순서라 홀수 번째가 이름이다.
+  const read = () => {
+    const w = words();
+    const rows = [];
+    for (let i = 0; i + 1 < w.length; i += 2) {
+      rows.push([
+        { t: w[i].textContent, o: +(+getComputedStyle(w[i]).opacity).toFixed(3) },
+        { t: w[i + 1].textContent, o: +(+getComputedStyle(w[i + 1]).opacity).toFixed(3) },
+      ]);
+    }
+    while (rows.length < 3) rows.push([{ t: "", o: 0 }, { t: "", o: 0 }]);
+    return rows;
+  };
   const out = [];
   const t0 = performance.now();
   window.dispatchEvent(new Event("x-probe-start"));
@@ -62,7 +67,7 @@ const trace = await page.evaluate(async () => {
   await new Promise((done) => {
     const tick = () => {
       out.push({ ms: Math.round(performance.now() - t0), rows: read(),
-        goo: getComputedStyle(goo).filter });
+        goo: "-" });
       if (performance.now() - t0 < 4000) requestAnimationFrame(tick); else done();
     };
     requestAnimationFrame(tick);

@@ -31,8 +31,7 @@ await page.waitForTimeout(1400);
 const res = await page.evaluate(async (gap) => {
   const box = [...document.querySelectorAll('div[aria-hidden="true"]')]
     .filter((d) => d.className.includes("fixed") && d.querySelector("span span span"))[0];
-  const goo = box.children[0];
-  const rows = [goo.children[0], goo.children[1], box.children[1]];
+
   const canvas = document.querySelector("canvas");
   const wheel = () => canvas.dispatchEvent(new WheelEvent("wheel", { deltaY: 800, bubbles: true, cancelable: true }));
   let worst = 0, worstAt = null, frames = 0;
@@ -43,9 +42,10 @@ const res = await page.evaluate(async (gap) => {
       const now = performance.now() - t0;
       if (fired < 5 && now >= next) { wheel(); fired++; next += gap; }
       const vis = [];
-      for (const r of rows) for (const s of r.firstElementChild.children) {
+      for (const s of box.querySelectorAll("span")) {
+        if (s.children.length || !s.textContent) continue;
         const o = +getComputedStyle(s).opacity;
-        if (o > 0.12 && s.textContent) vis.push({ t: s.textContent, o });
+        if (o > 0.12) vis.push({ t: s.textContent, o });
       }
       // 같은 슬롯(이름)의 서로 다른 문자열이 동시에 읽히는가
       const names = vis.filter((v) => v.t.length > 3);
