@@ -143,13 +143,14 @@ export function defaultParams() {
     textWeight: 400,
     textTracking: 0, // em
     textColor: "#0a0a0a",
-    textAt: 0.42, // fraction of the spread
+    textGap: 18, // px between the ring's outer edge and the heading
+    textAt: 0.26, // fraction of the spread
     textTime: 0.95,
     textStagger: 0.015,
     textEase: "power4.out",
     textOut: true,
-    textOutAt: -0.5, // seconds relative to the ring landing; negative = early
-    textOutTime: 0.7,
+    textOutAt: 0.1, // seconds relative to the ring *leaving*; the sweep wipes it
+    textOutTime: 0.55,
     textOutEase: "power2.in",
 
     // -- the meta either side of the ring --------------------------------
