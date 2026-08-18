@@ -19,3 +19,6 @@ timestamp	experiment	hypothesis	morph_p95	entry_p95	idle_p95	errors	score	decisi
 2026-08-18T07:00Z	008b	tighter rotated AABB instead of bounding circle	50	33.4	50	0	89.99	discard	union of the ring is already most of the phone screen
 2026-08-18T07:02Z	008c	MAX_PLANES/LINKS 32 -> 16	50	33.4	49.9	0	89.93	discard	morph pctOver33 38 vs 22; compiler already broke at uCount=9
 2026-08-18T07:03Z	009	H4 prefers-reduced-motion: cut instead of play (default path unchanged)	50	33.4	50	0	90.04	keep	harness is no-preference so frozen metric is a regression check. reducedMotion:reduce smoke: entry 2.4s (was 9s), canvas+aria-live, 0 errors.
+2026-08-18T07:46Z	010	H13 skip tag SDF/fwidth when tag scale is 0	50	33.4	50	0	90.04	discard	within 007 noise; tag field was not the floor
+2026-08-18T07:47Z	011	H9 no honey links until interactive	50	33.3	50	0	90.1	discard	entry pctOver33 4.2->1.5 but p95 stayed 33; visual change (unfurl threads) not worth it
+2026-08-18T07:49Z	012	H3 tight: shade at 0.75 * min(dpr,2)	33.4	16.8	33.4	0	96.66	keep	2 runs 96.62/96.71. morph p95 50->33.4 mean 35.8->20.2 fps 28->50; entry p95 33.4->16.8. phone backing 1.5 (dpr2/3 -> 585x1266), desktop/tablet unchanged. harness dpr1 looks softer than a real phone.
