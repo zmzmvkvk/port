@@ -53,9 +53,11 @@ components/
     planeShaders.js    the ring: SDFs, goo, glass lip, tag. ~430 lines of GLSL
     textShaders.js     the per-glyph reveal for the intro heading
 
+  ring/cards/          the nine card images, imported so they get hashed
+
 scripts/
-  generate-cards.mjs   the nine card images, from the local grok proxy
-  convert-cards.mjs    those masters -> public/NN.webp at 768x512
+  generate-cards.mjs   the card images, from the local grok proxy
+  convert-cards.mjs    those masters -> ring/cards/NN.webp at 768x512
   cards-src/           the masters, committed
 ```
 
@@ -66,11 +68,19 @@ as tidier in a file tree and is harder to follow in an editor.
 
 ## The card art
 
-Nine images, `public/01.webp` … `09.webp`, 768x512, packed into one atlas
-(`ring/atlas.js`, cell 512x341 to match the plane's 3:2). They are generated,
-not drawn: `scripts/generate-cards.mjs` posts to a local grok proxy
+Nine images, 768x512, packed into one atlas (`ring/atlas.js`, cell 512x341 to
+match the plane's 3:2). They are generated, not drawn:
+`scripts/generate-cards.mjs` posts to a local grok proxy
 (`/v1/images/generations`, OpenAI-shaped, default `127.0.0.1:8300`) and
 `scripts/convert-cards.mjs` turns the masters into the webp the site loads.
+
+**They live in `components/ring/cards/`, not `public/`, and `projects.js`
+imports them** so the bundler stamps a content hash into the filename. With
+stable names under `public/` the art was cached by name: new pictures were
+deployed and the site kept serving the old ones for a day, from an edge that
+had no way to know they had changed. `p.file` is therefore a resolved URL
+already — `atlas.js` uses it verbatim, and prepending a slash to it produces
+`//_next/...`, which is protocol-relative and silently blanks every card.
 
 ```bash
 node scripts/generate-cards.mjs        # all nine

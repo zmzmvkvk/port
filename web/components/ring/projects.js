@@ -6,9 +6,22 @@
 // 김서준 — 프론트엔드 · 웹 퍼블리싱 경력. 회사·프로젝트 설명은 공개 가능한
 // 사실만 사용한 비식별 재구성이며, 검증되지 않은 수치는 상세 패널에서
 // 자기보고로 표시한다.
+// 카드 그림은 import 로 들여온다. 문자열 경로로 두면 Next 의 해시를 못 타고,
+// 파일명이 고정이라 그림을 바꿔도 캐시가 옛것을 계속 내준다 — 실제로 한 번
+// 겪었다. import 하면 src 가 내용 해시를 물고 나오므로 교체가 그대로 반영된다.
+import card01 from "./cards/01.webp";
+import card02 from "./cards/02.webp";
+import card03 from "./cards/03.webp";
+import card04 from "./cards/04.webp";
+import card05 from "./cards/05.webp";
+import card06 from "./cards/06.webp";
+import card07 from "./cards/07.webp";
+import card08 from "./cards/08.webp";
+import card09 from "./cards/09.webp";
+
 export const PROJECTS = [
   {
-    file: "01.webp",
+    file: card01.src,
     name: "메가스터디교육",
     type: "정규직 · 프론트엔드",
     year: "2026",
@@ -21,7 +34,7 @@ export const PROJECTS = [
     tags: ["HTML/CSS/JS", "반응형", "접근성", "AI 워크플로"],
   },
   {
-    file: "02.webp",
+    file: card02.src,
     name: "AI 퍼블리싱 자동화",
     type: "사내 도구",
     year: "2026",
@@ -34,7 +47,7 @@ export const PROJECTS = [
     tags: ["AI 워크플로", "작업 규칙", "품질 게이트"],
   },
   {
-    file: "03.webp",
+    file: card03.src,
     name: "roomy.page",
     type: "웹사이트",
     year: "2026",
@@ -47,7 +60,7 @@ export const PROJECTS = [
     tags: ["WebGL", "Next.js", "Cloudflare"],
   },
   {
-    file: "04.webp",
+    file: card04.src,
     name: "버킷스토어",
     type: "프리랜스 · 퍼블리셔",
     year: "2025",
@@ -60,7 +73,7 @@ export const PROJECTS = [
     tags: ["반응형", "이미지 로딩", "운영"],
   },
   {
-    file: "05.webp",
+    file: card05.src,
     name: "롯데백화점 앱",
     type: "정규직 · 프론트엔드",
     year: "2022–25",
@@ -73,7 +86,7 @@ export const PROJECTS = [
     tags: ["React", "공통 템플릿", "WebView"],
   },
   {
-    file: "06.webp",
+    file: card06.src,
     name: "공통 템플릿 시스템",
     type: "운영 개선",
     year: "2024",
@@ -86,7 +99,7 @@ export const PROJECTS = [
     tags: ["React", "컴포넌트화", "운영 UI"],
   },
   {
-    file: "07.webp",
+    file: card07.src,
     name: "차병원 뉴스룸",
     type: "프리랜스 · 퍼블리셔",
     year: "2022",
@@ -99,7 +112,7 @@ export const PROJECTS = [
     tags: ["시맨틱 마크업", "접근성", "반응형"],
   },
   {
-    file: "08.webp",
+    file: card08.src,
     name: "하마그룹",
     type: "정규직 · 프론트엔드",
     year: "2021",
@@ -112,7 +125,7 @@ export const PROJECTS = [
     tags: ["Vue.js", "SCSS", "i18n"],
   },
   {
-    file: "09.webp",
+    file: card09.src,
     name: "Taylor's University",
     type: "학력 · 학사",
     year: "2020",
