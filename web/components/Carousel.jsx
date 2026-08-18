@@ -95,6 +95,9 @@ export default function Carousel() {
       // instead of composited per pixel against the DOM every frame.
       renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
       renderer.setClearColor(0xfafafa, 1);
+      // Cleared by hand each frame so a tight-band scissor can skip the
+      // empty canvas without leaving uncleared trails around the ring.
+      renderer.autoClear = false;
     } catch (err) {
       console.error("[ring] could not create a WebGL context:", err);
       return;
@@ -173,6 +176,7 @@ export default function Carousel() {
 
     const textGroup = new THREE.Group();
     scene.add(textGroup);
+    const textBounds = new THREE.Box3();
 
     const splitText = createSplitText(textGroup, params);
     const tag = createTag(params, uniforms);
@@ -1166,7 +1170,9 @@ export default function Carousel() {
       uniforms.uTextured.value = params.textured && firstIn ? 1 : 0;
       uniforms.uBlend.value = Math.max(0.5, params.blend * planeK * g);
 
-      const on = params.glass;
+      // Tight: the lip is a desktop flourish and it forces a full-screen
+      // pass (the scissor below cannot cut around two opposite bands).
+      const on = params.glass && !tightNow;
       uniforms.uBandTop.value = on ? params.bandTop * viewH : 0;
       uniforms.uBandBottom.value = on ? params.bandBottom * viewH : 0;
       uniforms.uGlass.value.set(
@@ -1487,6 +1493,63 @@ export default function Carousel() {
       tickLoader(dt);
       updatePointer(dt);
       layout(dt);
+
+      // Phone: only shade the ring. The page is a flat clear, so pixels
+      // outside the cards (and the heading, while it is up) are money spent
+      // to discard. The glass lip is already off in this band — a full-width
+      // strip at both edges would force the scissor back to the whole canvas.
+      renderer.setScissorTest(false);
+      renderer.clear();
+      if (tightNow) {
+        const size = uniforms.uSize.value;
+        const n = uniforms.uCount.value;
+        let minX = Infinity;
+        let minY = Infinity;
+        let maxX = -Infinity;
+        let maxY = -Infinity;
+        let any = false;
+        for (let i = 0; i < n; i++) {
+          const sc = uniforms.uScale.value[i];
+          if (Math.max(sc.x, sc.y) <= 0.0001) continue;
+          const pos = uniforms.uPos.value[i];
+          const rad = Math.hypot(size.x * sc.x, size.y * sc.y) * 0.5;
+          minX = Math.min(minX, pos.x - rad);
+          minY = Math.min(minY, pos.y - rad);
+          maxX = Math.max(maxX, pos.x + rad);
+          maxY = Math.max(maxY, pos.y + rad);
+          any = true;
+        }
+        if (textGroup.visible) {
+          textGroup.updateWorldMatrix(true, true);
+          textBounds.setFromObject(textGroup);
+          if (Number.isFinite(textBounds.min.x)) {
+            minX = Math.min(minX, textBounds.min.x);
+            minY = Math.min(minY, textBounds.min.y);
+            maxX = Math.max(maxX, textBounds.max.x);
+            maxY = Math.max(maxY, textBounds.max.y);
+            any = true;
+          }
+        }
+        if (any) {
+          const pad =
+            uniforms.uK.value +
+            uniforms.uWobble.value +
+            (cursor.amt > 0.001 ? params.meltReach : 0) +
+            16;
+          const x = Math.floor(viewW * 0.5 + minX - pad);
+          const y = Math.floor(viewH * 0.5 + minY - pad);
+          const w = Math.ceil(maxX - minX + pad * 2);
+          const h = Math.ceil(maxY - minY + pad * 2);
+          const sx = Math.max(0, x);
+          const sy = Math.max(0, y);
+          const sw = Math.min(viewW, x + w) - sx;
+          const sh = Math.min(viewH, y + h) - sy;
+          if (sw > 1 && sh > 1) {
+            renderer.setScissorTest(true);
+            renderer.setScissor(sx, sy, sw, sh);
+          }
+        }
+      }
 
       // The name arrives *with* the card, not while one flicks past and not a
       // second after one lands.
