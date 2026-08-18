@@ -29,6 +29,7 @@ roomy.page(= `web/` Next.js WebGL 캐러셀)에서 **모바일로 볼 때 텍스
 - `web/components/Carousel.jsx`
 - `web/components/ring/params.js`
 - `web/app/globals.css`
+- `web/components/shaders/planeShaders.js` (Ashima/Gustavson 노이즈 고지 블록은 제외)
 
 ## 수정 불가
 
@@ -39,12 +40,31 @@ roomy.page(= `web/` Next.js WebGL 캐러셀)에서 **모바일로 볼 때 텍스
 
 ## 가설 백로그 (한 번에 하나씩)
 
-- H1: 모바일(coarse pointer 또는 tight 밴드)에서는 이름 모프를
-  블러+SVG 필터 대신 순수 opacity 크로스페이드로 대체.
-- H2: WebGL `antialias: false` (셰이더 자체 AA가 있으므로 무손실).
-- H3: 모바일에서 renderer pixel ratio 상한을 2 → 1.5로.
-- H4: `prefers-reduced-motion`이면 모프를 즉시 전환으로.
-- H5: 데스크톱 모프도 blur 상한 100px → 32px로 (임계값 뒤라 시각 차 미미).
+완료 (2026-08-17 ~ 08-18):
+- H1: 모바일 이름 모프를 블러+SVG 대신 opacity/릴레이로. keep.
+- H2: WebGL `antialias: false`. keep.
+- H5: 데스크톱 blur 상한 — goo 멜트 제거로 대체됨 (feat-typo). keep.
+
+리그가 못 보는 것 (점수 안 움직임, 실기기/접근성 작업):
+- H3: 모바일 renderer pixel ratio 상한 2 → 1.5. 리그 DPR 1.
+- H4: `prefers-reduced-motion`이면 모프/엔트리를 즉시 전환.
+  → 009 keep (기본 경로 90.04, 회귀 없음).
+
+다음 Inner (엔트리 p95가 83.4ms로 전 실험 고정 — 남은 신호):
+- H6: 이미 녹아 사라진 허니 링크(rEnd ≤ −3)를 업로드/평가하지 않는다.
+  정지·모프에서 8개가 −2.9로 살아 매 픽셀 `sdBridge`를 탄다.
+  → 007a discard (점수 변화 없음, vsync 양자화).
+- H7: tight 밴드에서 글래스 립을 끄고 패스를 링 AABB로 시저.
+  빈 픽셀이 전 화면 SDF를 돌던 것이 엔트리 p95의 바닥이었다.
+  → 007 keep (77.49 → 90.03).
+- H8: 시드 탄생 워블(`uWobble`/snoise)을 끈다. discard 전에 전 픽셀
+  simplex가 돈다. 엔트리 초반만 — p95는 이미 시저로 내려감.
+- H9: 엔트리 동안(interactive 전) 허니 링크를 만들지 않는다.
+- H10: tight에서 chromatic fringe만 0.
+- H11: 시저 위에서 H6 재시도 — 이제 남는 픽셀이 카드 위라
+  죽은 브릿지 8개가 모프 mean에 보일 수 있다.
+- H12: 데스크톱(wide/narrow)은 글래스를 유지하되, 립 밖만
+  시저로 자를 수 있는지 (두 밴드가 시저를 풀스크린으로 강제).
 
 ## 규칙
 
