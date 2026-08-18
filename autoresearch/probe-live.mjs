@@ -18,8 +18,9 @@ await page.waitForTimeout(1400);
 const r = await page.evaluate(async () => {
   const box = [...document.querySelectorAll('div[aria-hidden="true"]')]
     .filter((d) => d.className.includes("fixed") && d.querySelector("span span span"))[0];
-  const goo = box.children[0];
-  const rows = [goo.children[0], goo.children[1], box.children[1]];
+  // 말단 span 이 낱말이다. 행이 몇 겹으로 감싸여 있든 이 방식은 그대로 읽힌다.
+  const words = () =>
+    [...box.querySelectorAll("span")].filter((s) => !s.children.length && s.textContent);
   const t0 = performance.now();
   document.querySelector("canvas").dispatchEvent(
     new WheelEvent("wheel", { deltaY: 800, bubbles: true, cancelable: true }));
@@ -28,9 +29,10 @@ const r = await page.evaluate(async () => {
     const tick = () => {
       const ms = performance.now() - t0;
       const vis = [];
-      for (const r of rows) { const s = r.firstElementChild.children[1];
+      for (const s of words()) {
         const o = +getComputedStyle(s).opacity;
-        if (o > 0.12 && s.textContent) vis.push({ t: s.textContent, o }); }
+        if (o > 0.12 && s.textContent.length > 3) vis.push({ t: s.textContent, o });
+      }
       const names = new Set(vis.map((v) => v.t));
       if (names.size > 1) { overlap += ms - prev; worst = Math.max(worst, Math.min(...vis.map((v) => v.o))); }
       const moving = vis.some((v) => v.o < 0.98);
