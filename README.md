@@ -42,9 +42,15 @@ python -m http.server 8787
 4. 서로 다른 엔티티 사이의 의미는 `data/relations.json`에 연결합니다.
 5. 대시보드에서 읽히는지 확인한 뒤 커밋합니다.
 
-## 공개 페이지 — `site/`
+## 공개 페이지 — 지금 올라가 있는 것은 `web/`
 
-https://roomy.page 에 올라가는 실제 페이지입니다. 빌드 도구·프레임워크·JavaScript 없이 HTML과 CSS 두 파일로만 구성했습니다.
+https://roomy.page 는 **`web/`** (Next.js 정적 export → `web/out`)를 서비스합니다.
+WebGL 프래그먼트 셰이더 한 장으로 카드 링을 그리는 페이지이고, 코드 설명은
+`web/AGENTS.md`, 모션 개선 이력은 `autoresearch/autoresearch.md`에 있습니다.
+
+`site/` 는 그 이전 버전 — JavaScript 없이 HTML·CSS 두 파일로만 만든 페이지입니다.
+지금은 배포되지 않지만 대체본으로 남겨 둡니다. 아래 `site/` 설명은 그 파일들에
+대한 것입니다.
 
 ```text
 site/
@@ -81,9 +87,20 @@ Cloudflare 존 설정이 브라우저 캐시 TTL을 4시간으로 강제하고 �
 Cloudflare Pages 프로젝트 `roomy-portfolio`에 직접 업로드합니다. 저장소 루트에서 실행합니다.
 
 ```bash
-npx wrangler login                    # 최초 1회
-npx wrangler pages deploy site --project-name=roomy-portfolio --branch=main
+npx wrangler login                                  # 최초 1회
+cd web && npm run build && cd ..                    # web/out 재생성
+npx wrangler pages deploy web/out --project-name=roomy-portfolio --branch=main
 ```
+
+배포 후에는 실서비스에서 한 번 확인합니다. 엔트리·모프 타이밍과 콘솔 에러를
+읽어 옵니다.
+
+```bash
+cd autoresearch && node probe-live.mjs https://roomy.page/ mo
+```
+
+`site/`(구버전)를 대신 올리려면 마지막 줄의 `web/out`을 `site`로 바꿉니다.
+같은 프로젝트에 덮어쓰므로 두 개를 동시에 올릴 수는 없습니다.
 
 | 항목 | 값 |
 | --- | --- |
@@ -99,9 +116,39 @@ CNAME  roomy.page      -> roomy-portfolio.pages.dev  (proxied)
 CNAME  www.roomy.page  -> roomy-portfolio.pages.dev  (proxied)
 ```
 
+### 콘솔에 뜨는 CSP 에러 — 알려진 상태
+
+실서비스에서 콘솔 에러 두 건이 납니다. 코드 문제가 아니라 **존 설정과 우리 CSP가
+부딪히는 것**입니다.
+
+```text
+Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/...'
+violates the following Content Security Policy directive: "script-src 'self' 'unsafe-inline'"
+```
+
+Cloudflare가 Web Analytics 비콘을 HTML에 자동 주입하는데, `_headers`의 CSP가
+외부 스크립트를 막고 있어서 차단됩니다. 결과적으로 애널리틱스는 어차피 동작하지
+않고 콘솔 에러만 남습니다. 둘 중 하나로 정리합니다.
+
+1. **비콘을 끈다 (권장).** Cloudflare 대시보드 → 계정 → Analytics & Logs →
+   Web Analytics에서 `roomy.page` 항목의 자동 설치(automatic setup / JS snippet
+   자동 주입)를 끕니다. "외부 요청 0건" 원칙이 유지되고 에러도 사라집니다.
+2. **CSP를 연다.** `web/public/_headers`(빌드되면 `web/out/_headers`)의
+   `script-src`와 `connect-src`에 `https://static.cloudflareinsights.com`을
+   추가합니다. 애널리틱스는 살지만 외부 요청이 한 건 생깁니다.
+
+wrangler OAuth 토큰에는 RUM 스코프가 없어(`rum/site_info/list` → 403) 1번은
+대시보드에서만 됩니다.
+
 ### 문구를 고칠 때
 
-`site/index.html`을 직접 수정합니다. 고친 문구가 `data/claims.json`의 `status`와 어긋나지 않게 맞춥니다. 검증되지 않은 수치는 본문에 `자기보고` 배지를 달아 구분하고, 근거가 생기면 배지를 걷어냅니다.
+지금 올라가 있는 페이지(`web/`)의 경력 문구는 `web/components/ring/projects.js`
+한 곳에 있습니다. 이름·직군·연도·기간·설명·태그가 카드 순서 그대로 들어 있고,
+링·목록·번호가 모두 이 배열에서 나오므로 순서를 바꾸면 셋이 같이 움직입니다.
+구버전 `site/`는 `site/index.html`을 직접 고칩니다.
+
+어느 쪽이든 고친 문구가 `data/claims.json`의 `status`와 어긋나지 않게 맞춥니다.
+검증되지 않은 수치는 자기보고로 표시하고, 근거가 생기면 걷어냅니다.
 
 ## 개인정보 안전
 
