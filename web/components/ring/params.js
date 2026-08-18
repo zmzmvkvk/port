@@ -143,7 +143,7 @@ export function defaultParams() {
     textWeight: 400,
     textTracking: 0, // em
     textColor: "#0a0a0a",
-    textGap: 18, // px between the ring's outer edge and the heading
+    textGap: 110, // px between the ring's outer edge and the heading
     textAt: 0.26, // fraction of the spread
     textTime: 0.95,
     textStagger: 0.015,
