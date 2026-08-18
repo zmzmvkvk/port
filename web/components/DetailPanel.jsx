@@ -5,12 +5,18 @@ import { PROJECTS } from "./ring/projects";
 
 const SATOSHI = '"Satoshi", ui-sans-serif, system-ui, sans-serif';
 const GEIST = '"Geist", ui-sans-serif, system-ui, sans-serif';
+const IN = "cubic-bezier(.16,.84,.44,1)";
 
 /**
- * 앞면 카드를 클릭하면 Carousel이 카드 속으로 날아 들어간 뒤(viscose:open)
- * 이 레이어가 확대된 카드 아트 위로 떠오른다. 팝업이 아니라 그 카드의
- * "안쪽 면"처럼 읽히도록 풀스크린 한 장으로 그린다. 닫기(버튼·ESC·배경
- * 클릭)는 viscose:close를 보내 같은 비행을 거꾸로 돌린다.
+ * 앞면 카드를 클릭하면 Carousel이 카드 속으로 날아 들어가고, 그 비행이
+ * 끝나기 전에(viscose:open) 이 레이어가 확대된 카드 아트 위로 떠오른다.
+ * 팝업이 아니라 그 카드의 "안쪽 면"처럼 읽히도록 풀스크린 한 장으로 그린다.
+ * 닫기(버튼·ESC·배경 클릭)는 viscose:close를 보내 같은 비행을 거꾸로 돌린다.
+ *
+ * 들어올 때는 한 장으로 뜨지 않고 블록이 차례로 올라온다 — 비행이 아직
+ * 커지고 있는 동안 시작해서, 카드가 멈출 즈음 본문이 자리를 잡는다. 나갈
+ * 때는 그 순서가 없다: 사용자가 이미 나가기로 한 화면을 순서대로 배웅하면
+ * 느리게만 읽힌다.
  */
 export default function DetailPanel() {
   const [index, setIndex] = useState(-1);
@@ -57,9 +63,19 @@ export default function DetailPanel() {
   const project = index >= 0 ? PROJECTS[index] : null;
   if (!project) return null;
 
+  // 블록 i가 올라오는 방식. 나갈 때는 지연 없이 한 번에 걷힌다.
+  const rise = (i) => ({
+    opacity: shown ? 1 : 0,
+    transform: shown ? "none" : "translate3d(0, 16px, 0)",
+    transitionProperty: "opacity, transform",
+    transitionDuration: shown ? "440ms" : "160ms",
+    transitionTimingFunction: shown ? IN : "ease-in",
+    transitionDelay: shown ? `${i * 70}ms` : "0ms",
+  });
+
   return (
     <div
-      className={`fixed inset-0 z-50 overflow-y-auto bg-[#fafafa]/[.93] text-[#0a0a0a] transition-opacity duration-[420ms] ease-out ${
+      className={`fixed inset-0 z-50 overflow-y-auto bg-[#fafafa]/[.93] text-[#0a0a0a] transition-opacity duration-[360ms] ease-out ${
         shown ? "opacity-100" : "opacity-0"
       }`}
       onClick={close}
@@ -71,11 +87,12 @@ export default function DetailPanel() {
         aria-label={project.name}
         onClick={(e) => e.stopPropagation()}
         style={{ fontFamily: SATOSHI }}
-        className={`mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center gap-8 px-6 py-16 transition-transform duration-[420ms] ease-out sm:px-8 ${
-          shown ? "translate-y-0" : "translate-y-5"
-        }`}
+        className="mx-auto flex min-h-full w-full max-w-2xl flex-col justify-center gap-8 px-6 py-16 sm:px-8"
       >
-        <header className="flex items-baseline justify-between gap-4">
+        <header
+          style={rise(0)}
+          className="flex items-baseline justify-between gap-4"
+        >
           <p
             style={{ fontFamily: GEIST }}
             className="text-sm tracking-[0.02em] text-black/50"
@@ -99,7 +116,7 @@ export default function DetailPanel() {
           </button>
         </header>
 
-        <div>
+        <div style={rise(1)}>
           <h2 className="text-[clamp(2.1rem,8vw,4rem)] font-medium leading-[1.08] tracking-[-0.015em]">
             {project.name}
           </h2>
@@ -111,7 +128,10 @@ export default function DetailPanel() {
           </p>
         </div>
 
-        <ul className="flex max-w-prose flex-col gap-3 text-[15px] leading-relaxed text-black/80">
+        <ul
+          style={rise(2)}
+          className="flex max-w-prose flex-col gap-3 text-[15px] leading-relaxed text-black/80"
+        >
           {project.desc.map((line) => (
             <li key={line} className="flex gap-2.5">
               <span
@@ -123,7 +143,7 @@ export default function DetailPanel() {
           ))}
         </ul>
 
-        <ul className="flex flex-wrap gap-2">
+        <ul style={rise(3)} className="flex flex-wrap gap-2">
           {project.tags.map((tag) => (
             <li
               key={tag}
@@ -135,7 +155,10 @@ export default function DetailPanel() {
           ))}
         </ul>
 
-        <footer className="border-t border-black/10 pt-4 text-xs leading-relaxed text-black/40">
+        <footer
+          style={rise(4)}
+          className="border-t border-black/10 pt-4 text-xs leading-relaxed text-black/40"
+        >
           공개 가능한 사실만 사용한 비식별 재구성입니다. 검증되지 않은 수치는
           자기보고로 표시했습니다.
         </footer>

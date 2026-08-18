@@ -102,13 +102,25 @@ export function defaultParams() {
     moveDelay: 0.2,
 
     // -- the dive into a card ---------------------------------------------
-    // Clicking the front card flies the view into it: the ring zooms about
-    // that card until it covers the screen, then the detail layer fades in.
-    diveTime: 1.0,
-    diveEase: "power3.inOut",
-    diveOutTime: 0.75,
+    // Clicking the front card flies the view into it, and the flight has two
+    // beats. First the card peels out of the ring — it coils back a hair,
+    // swells, and its neighbours give way, stringing honey that snaps. Then
+    // the zoom takes over and it swallows the screen. One even zoom instead
+    // reads as "the picture got bigger": nothing happens, and the card never
+    // leaves the ring it is plainly still part of.
+    diveTime: 1.15,
+    diveEase: "power2.inOut",
+    diveOutTime: 0.7,
     diveOutEase: "power3.inOut",
     diveCover: 1.06, // how far past the viewport the card grows
+    diveCoil: 0.05, // how far it draws back before it goes
+    diveLift: 0.12, // and how far it swells as it comes out
+    divePart: 58, // px the neighbours clear, on top of the zoom
+    diveDim: 0.5, // and how far they darken while doing it
+    diveWeb: 0.3, // honey strung to the two either side, as a share of the edge
+    // Where the detail layer takes over, as a fraction of the flight. Handing
+    // it the screen only on arrival leaves a beat where nothing moves.
+    diveHand: 0.62,
 
     // -- scroll / drag / click, live once the entry finishes --------------
     scrollSpeed: 0.0022, // rad/s of angular velocity per px of wheel delta
@@ -120,6 +132,11 @@ export function defaultParams() {
     snapFrom: 1, // rad/s under which the ring commits to a slot
     pickTime: 0.55, // click-to-centre: seconds for one slot, root-scaled
     pickEase: "power3.inOut",
+    // How close the winning card has to be, in slots, before the words follow
+    // it. Only read once the snap has committed — see the meta gate in
+    // Carousel.jsx. Waiting for the ring to park instead put the name a full
+    // second behind the card it names.
+    metaLead: 0.45,
 
     // -- the intro heading, in the scene ---------------------------------
     text: "김서준 — Works",
@@ -154,12 +171,34 @@ export function defaultParams() {
     listSize: 0.9, // vw; the column's line height is unitless so rows follow
 
     // The morph between one card's words and the next.
-    nameMorphTime: 1.2,
-    nameEase: "circ.out",
-    nameBlur: 8.5, // px the outgoing word smears to before it lets go
+    //
+    // The two words are not treated alike. Smearing both on the same curve
+    // puts them at half strength at the same moment, and half of a blurred
+    // word is under the threshold: the name vanished outright for half a
+    // second in the middle of every change, then came back as blobs. So the
+    // arriving word sharpens well before the leaving one is spent, and the
+    // leaving one is emptied early — there is always one readable word, and
+    // where the two do meet they still weld.
+    nameMorphTime: 0.72,
+    nameEase: "power2.out",
+    nameLeave: 0.86, // where the outgoing word is gone, as a share of the morph
+    nameArrive: 0.58, // and where the incoming one is fully set
+    nameBlur: 2.6, // px the outgoing word smears to before it lets go
     nameEdge: 400, // alpha gain — how abruptly the threshold sets
     nameCut: 0.33, // and the alpha it sets at
     nameSoften: 0.35, // px of blur after it, standing in for antialiasing
+
+    // Coarse pointers never touch the filter (see ring/meta.js), and without
+    // it a crossfade is just one name printed over the other — two Korean
+    // words at half opacity is not a morph, it is a smudge, and it was on
+    // screen for the best part of a second. So the phone relays instead: the
+    // old name steps up and out, the new one rises into the space it left,
+    // and they only pass each other while both are nearly gone.
+    nameMorphCoarse: 0.5,
+    nameEaseCoarse: "power2.out",
+    nameLeaveCoarse: 0.5, // where the outgoing word has finished leaving
+    nameRelayCoarse: 0.28, // and where the incoming one starts to rise
+    nameRise: 0.3, // em each of them travels
 
     // -- glass lip along the top and bottom ------------------------------
     glass: true,

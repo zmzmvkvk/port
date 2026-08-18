@@ -306,6 +306,10 @@ export default function Carousel() {
 
     /* ------------------------------------------------------- spin & input */
     const ringCentre = { x: 0, y: 0 };
+    // How far the nearest plane is from front, in radians. Measured in the
+    // layout pass and read by the meta gate at the end of the frame, which is
+    // why it outlives the pass that sets it.
+    let frontGap = Infinity;
     // Which way "front" is: from the ring's centre toward the middle of the
     // screen. Once the ring is off centre that is no longer 3 o'clock.
     let frontAngle = 0;
@@ -386,6 +390,9 @@ export default function Carousel() {
     let diveI = -1;
 
     // The DOM type would sit on top of the flight, so it gets out of the way.
+    // Quickly on the way out — it is over the card the moment the card starts
+    // growing — and late on the way back, after the ring is home, so it does
+    // not ghost across the return.
     const fadeChrome = (to) => {
       const els = [
         listEl,
@@ -394,8 +401,9 @@ export default function Carousel() {
       ].filter(Boolean);
       gsap.to(els, {
         opacity: to,
-        duration: 0.45,
-        ease: "power2.out",
+        duration: to ? 0.4 : 0.22,
+        delay: to ? params.diveOutTime * 0.45 : 0,
+        ease: to ? "power2.out" : "power2.in",
         overwrite: "auto",
       });
     };
@@ -407,16 +415,27 @@ export default function Carousel() {
       // Latched now: `shown` cannot change mid-dive, but the panel should
       // open on what was clicked, not on whatever is front on completion.
       const opened = shown;
+      // Handed over while the card is still growing, not once it has stopped.
+      // The detail layer's own arrival then overlaps the tail of the flight
+      // and the two read as one move; waiting for the end left a dead beat
+      // with a full-screen picture and nothing happening.
+      let handed = false;
+      const hand = () => {
+        if (handed) return;
+        handed = true;
+        window.dispatchEvent(
+          new CustomEvent("viscose:open", { detail: opened }),
+        );
+      };
       gsap.killTweensOf(state, "dive");
       gsap.to(state, {
         dive: 1,
         duration: params.diveTime,
         ease: params.diveEase,
-        onComplete: () => {
-          window.dispatchEvent(
-            new CustomEvent("viscose:open", { detail: opened }),
-          );
+        onUpdate: () => {
+          if (state.dive >= params.diveHand) hand();
         },
+        onComplete: hand,
       });
       fadeChrome(0);
     };
@@ -924,31 +943,65 @@ export default function Carousel() {
       }
 
       /* ---- dive ---- */
-      // A camera zoom about the picked card: positions spread away from it
-      // while every plane grows by the same factor, so the picked one swells
-      // in place until it covers the viewport and the rest clear the edges.
+      // A camera move about the picked card, in two beats laid over one
+      // another rather than played in sequence.
+      //
+      //  peel — the card draws back a hair, then comes out of the ring: it
+      //         swells, and its neighbours actively clear away and darken
+      //         instead of merely being carried off by the zoom. This beat is
+      //         what says the card *left* the ring.
+      //  zoom — takes over from behind the peel and swallows the screen,
+      //         carrying the card to the middle as it goes.
+      //
       // Applied on top of the normal layout each frame, so a resize mid-dive
       // stays covered and the flight home lands exactly where the ring is.
       const dv = clamp01(state.dive);
+      // Read below by the honey, which strings between the card and the two
+      // it is pulling away from — so it has to be in scope past this block.
+      const peel = smoothstep(0, 0.42, dv);
       if (dv > 0 && diveI >= 0) {
+        const zoom = smoothstep(0.16, 1, dv);
+        // Recoil: one short breath backwards before it goes. Half a beat, and
+        // the launch stops looking like something the page decided on its own.
+        const coil = Math.sin(Math.PI * clamp01(dv / 0.22)) * params.diveCoil;
         const cover =
           Math.max(viewW / Math.max(1, W), viewH / Math.max(1, H)) *
           params.diveCover;
-        const z = 1 + (cover - 1) * dv;
+        const z = 1 + (cover - 1) * zoom;
         const px0 = uniforms.uPos.value[diveI].x;
         const py0 = uniforms.uPos.value[diveI].y;
         for (let i = 0; i < count; i++) {
           const q = uniforms.uPos.value[i];
           const s = uniforms.uScale.value[i];
-          q.set(
-            (q.x - px0) * z + px0 * (1 - dv),
-            (q.y - py0) * z + py0 * (1 - dv),
-          );
+          // The pivot rides home on the zoom, not on raw progress, or the
+          // card would be at centre screen before it was big enough to be
+          // there and the two beats would read as a slide plus a zoom.
+          let qx = (q.x - px0) * z + px0 * (1 - zoom);
+          let qy = (q.y - py0) * z + py0 * (1 - zoom);
+
+          if (i === diveI) {
+            const lift = 1 + params.diveLift * peel * (1 - zoom) - coil;
+            s.x *= lift;
+            s.y *= lift;
+          } else {
+            // Straight out along the line from the card, so the ring opens
+            // around it rather than everything drifting the same way.
+            const dx = q.x - px0;
+            const dy = q.y - py0;
+            const d = Math.hypot(dx, dy) || 1;
+            const away = params.divePart * fit * peel;
+            qx += (dx / d) * away;
+            qy += (dy / d) * away;
+            s.z *= 1 - params.diveDim * peel;
+          }
+
+          q.set(qx, qy);
           s.x *= z;
           s.y *= z;
         }
       }
 
+      frontGap = frontD;
       over = overI;
       // Both tests, not either: the width covers a small window on a mouse,
       // `coarse` covers a large tablet. Re-tested every frame so a window
@@ -993,6 +1046,14 @@ export default function Carousel() {
       order.sort((a, b) => signedOffset(a) - signedOffset(b));
 
       const edgeHalf = faceEdge * 0.5 * params.thread;
+      // A card coming out of the ring drags on the two either side of it and
+      // the threads snap, which is how everything else on this ring parts. A
+      // dive that skipped it would be the one move made of different stuff.
+      // Strung and broken inside the peel, so it is spent before the zoom.
+      const peelWeb =
+        diveI >= 0 && dv > 0
+          ? params.diveWeb * Math.sin(Math.PI * clamp01(dv / 0.36))
+          : 0;
       // Once closed the seam pair are neighbours like any other, and without a
       // link the one gap the fan never opened is the only one the cursor
       // cannot web back together.
@@ -1035,7 +1096,13 @@ export default function Carousel() {
         // thread would be there before the pull was.
         webF[l] += (fl - webF[l]) * (fl > webF[l] ? kRise : kFall);
 
-        const w = Math.max(Math.pow(1 - v, params.thin), params.web * webF[l]);
+        const strung =
+          peelWeb > 0 && (ia === diveI || ib === diveI) ? peelWeb : 0;
+        const w = Math.max(
+          Math.pow(1 - v, params.thin),
+          params.web * webF[l],
+          strung,
+        );
         // dissolve carries the radius past zero and out of antialiasing range
         // so the thread fades instead of bottoming out as a half-covered
         // hairline. In screen px, so unlike edgeHalf it does not carry g.
@@ -1392,14 +1459,26 @@ export default function Carousel() {
       updatePointer(dt);
       layout(dt);
 
-      // The name arrives with the card, not while one flicks past. A pick
-      // drives spin by tween, so spinVel is zero throughout — without that
-      // test the meta would morph as the ring passed the halfway mark.
+      // The name arrives *with* the card, not while one flicks past and not a
+      // second after one lands.
+      //
+      // Once the snap has committed, the slot the ring is running in on is
+      // decided and cannot change, so as soon as the winning card is within
+      // metaLead of front the words can start moving — the morph then lands
+      // about when the card does. Waiting for the ring to park instead waited
+      // out the whole exponential tail: measured, the card was visually home
+      // at 0.9s and the name did not begin until 1.6s.
+      //
+      // A pick drives spin by tween and its ease ends exactly on the slot, so
+      // that one is still left to the parked test — as is a ring with the
+      // snap switched off, which has no commitment to read.
+      const slotAngle = TAU / Math.round(params.count);
+      const parked = !picking && spinVel === 0;
+      const landing = settling && frontGap < slotAngle * params.metaLead;
       if (
         interactive &&
         !dragging &&
-        !picking &&
-        spinVel === 0 &&
+        (parked || landing) &&
         shown >= 0 &&
         shown !== announced
       ) {

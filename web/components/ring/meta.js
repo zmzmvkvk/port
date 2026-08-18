@@ -1,5 +1,6 @@
 import gsap from "gsap";
 import { PROJECTS } from "./projects";
+import { clamp01 } from "./utils";
 
 /**
  * The two lockups of type either side of the ring: [number . name] on the
@@ -29,9 +30,9 @@ const SLOTS = 2;
 // Phone GPUs cannot rasterise the goo threshold plus a per-frame blur that
 // climbs toward 100px at frame rate — the morph janks exactly when a card
 // lands, which on touch is every swipe. At phone size the melt is barely
-// readable anyway, so coarse-pointer devices get a plain crossfade: opacity
-// only, no filter ever touched. Primary pointer, so a touchscreen laptop
-// driven by its mouse keeps the full effect.
+// readable anyway, so coarse-pointer devices never touch a filter and relay
+// the two words past each other instead (see `slide`). Primary pointer, so a
+// touchscreen laptop driven by its mouse keeps the full effect.
 const CHEAP =
   typeof window !== "undefined" &&
   (window.matchMedia?.("(pointer: coarse)")?.matches ?? false);
@@ -45,19 +46,37 @@ const slotsOf = (row) => row?.firstElementChild?.children;
 function fade(el, f, blur) {
   if (!el) return;
   if (f >= 1) {
-    if (!CHEAP) el.style.filter = "none";
+    el.style.filter = "none";
     el.style.opacity = "1";
   } else if (f <= 0) {
     // Cleared as well as hidden, so a spent word is not left holding a 100px
     // blur the compositor has to keep around.
-    if (!CHEAP) el.style.filter = "none";
+    el.style.filter = "none";
     el.style.opacity = "0";
-  } else if (CHEAP) {
-    el.style.opacity = `${f}`;
   } else {
     el.style.filter = `blur(${Math.min(blur / f - blur, 100)}px)`;
     el.style.opacity = `${Math.pow(f, 0.4)}`;
   }
+}
+
+// The coarse-pointer half of the same job. No filter is ever touched here, so
+// nothing welds and two words at once can only read as two words: they take
+// turns instead. `dir` is which way this one travels — the word leaving steps
+// up out of the line, the word arriving rises into it — and the opacity is
+// smoothstepped so the sliver where they pass is faint at both ends.
+function slide(el, f, dir, rise) {
+  if (!el) return;
+  if (f <= 0) {
+    el.style.opacity = "0";
+    return;
+  }
+  if (f >= 1) {
+    el.style.opacity = "1";
+    el.style.transform = "none";
+    return;
+  }
+  el.style.opacity = `${f * f * (3 - 2 * f)}`;
+  el.style.transform = `translate3d(0, ${(dir * (1 - f) * rise).toFixed(3)}em, 0)`;
 }
 
 function createGroup(side, groups, params) {
@@ -79,8 +98,23 @@ function createGroup(side, groups, params) {
 
     for (let j = 0; j < SLOTS; j++) {
       if (moving[j]) {
-        fade(out?.[j], 1 - t, params.nameBlur);
-        fade(into?.[j], t, params.nameBlur);
+        if (CHEAP) {
+          const gone = clamp01(t / params.nameLeaveCoarse);
+          const relay = Math.max(0.05, 1 - params.nameRelayCoarse);
+          slide(out?.[j], 1 - gone, -1, params.nameRise);
+          slide(
+            into?.[j],
+            clamp01((t - params.nameRelayCoarse) / relay),
+            1,
+            params.nameRise,
+          );
+        } else {
+          // Asymmetric on purpose — see nameLeave/nameArrive in params.js. The
+          // word arriving is set before the word leaving is spent, so the pair
+          // never sit at half strength together and drop under the threshold.
+          fade(out?.[j], 1 - clamp01(t / params.nameLeave), params.nameBlur);
+          fade(into?.[j], clamp01(t / params.nameArrive), params.nameBlur);
+        }
         if (held?.[j]) held[j].style.opacity = "0";
       } else {
         if (out?.[j]) out[j].style.opacity = "0";
@@ -138,8 +172,8 @@ function createGroup(side, groups, params) {
     draw();
     gsap.to(m, {
       t: 1,
-      duration: params.nameMorphTime,
-      ease: params.nameEase,
+      duration: CHEAP ? params.nameMorphCoarse : params.nameMorphTime,
+      ease: CHEAP ? params.nameEaseCoarse : params.nameEase,
       onUpdate: draw,
     });
   };

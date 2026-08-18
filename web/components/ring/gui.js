@@ -163,10 +163,19 @@ export function mountGui(GUI, { params, state, info, actions }) {
   meta.add(params, "idxWeight", WEIGHTS).name("number weight").onChange(styleMeta); // prettier-ignore
   meta.add(params, "nameMorphTime", 0.1, 4, 0.05).name("morph time");
   meta.add(params, "nameEase", EASES).name("ease");
+  meta.add(params, "nameLeave", 0.2, 1, 0.01).name("old word gone by");
+  meta.add(params, "nameArrive", 0.2, 1, 0.01).name("new word set by");
   meta.add(params, "nameBlur", 0, 40, 0.5).name("smear");
   meta.add(params, "nameEdge", 8, 800, 1).name("threshold gain").onChange(setThreshold); // prettier-ignore
   meta.add(params, "nameCut", 0.05, 0.95, 0.01).name("threshold cut").onChange(setThreshold); // prettier-ignore
   meta.add(params, "nameSoften", 0, 3, 0.05).name("soften");
+  // The coarse-pointer relay. Nothing here does anything on a mouse — the
+  // branch is picked once, off the primary pointer, in ring/meta.js.
+  meta.add(params, "nameMorphCoarse", 0.1, 2, 0.05).name("touch: morph time");
+  meta.add(params, "nameEaseCoarse", EASES).name("touch: ease");
+  meta.add(params, "nameLeaveCoarse", 0.1, 1, 0.01).name("touch: old gone by");
+  meta.add(params, "nameRelayCoarse", 0, 0.9, 0.01).name("touch: new starts");
+  meta.add(params, "nameRise", 0, 1.5, 0.01).name("touch: travel (em)");
   // Re-announces whatever is already at the front, so the morph can be watched
   // without spinning to a new card each time.
   meta.add({ again: actions.replayMeta }, "again").name("play again");
@@ -194,6 +203,21 @@ export function mountGui(GUI, { params, state, info, actions }) {
   scroll.add(params, "snapFrom", 0.1, 20, 0.1).name("settle below");
   scroll.add(params, "pickTime", 0.1, 2, 0.05).name("pick, per slot (s)");
   scroll.add(params, "pickEase", EASES).name("pick ease");
+  scroll.add(params, "metaLead", 0.05, 1, 0.01).name("name follows at (slots)");
+
+  // -- the dive into a card -------------------------------------------------
+  const dive = gui.addFolder("dive");
+  dive.add(params, "diveTime", 0.2, 4, 0.05).name("in (s)");
+  dive.add(params, "diveEase", EASES).name("in ease");
+  dive.add(params, "diveOutTime", 0.2, 4, 0.05).name("out (s)");
+  dive.add(params, "diveOutEase", EASES).name("out ease");
+  dive.add(params, "diveCover", 1, 2, 0.01).name("cover");
+  dive.add(params, "diveCoil", 0, 0.3, 0.005).name("recoil");
+  dive.add(params, "diveLift", 0, 0.6, 0.01).name("swell");
+  dive.add(params, "divePart", 0, 300, 1).name("neighbours clear (px)");
+  dive.add(params, "diveDim", 0, 1, 0.01).name("neighbours dim");
+  dive.add(params, "diveWeb", 0, 1, 0.01).name("honey strung");
+  dive.add(params, "diveHand", 0.1, 1, 0.01).name("detail takes over at");
 
   const pointer = gui.addFolder("pointer");
   pointer.add(params, "hover").name("enabled");
