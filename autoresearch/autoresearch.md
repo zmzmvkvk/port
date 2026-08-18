@@ -75,6 +75,18 @@ roomy.page(소스: `web/`, Next.js 정적 export → Cloudflare Pages)에서
      끝난 뒤가 아니라 62% 지점에서 넘겨받아 블록이 차례로 올라온다.
      증거: shots/dive-*.
 
+- 카드 아트 교체 (2026-08-18): 아홉 장을 컷 페이퍼 정물 한 세트로 다시 만들었다.
+  로컬 grok 프록시(`web/scripts/generate-cards.mjs`)로 생성 → `convert-cards.mjs`로
+  768x512 webp. 전/후: `shots/cards-before.png`, `shots/cards-after.png`.
+  세트 무게 199KB → 136KB (엔트리 타임라인이 이걸 기다린다).
+  - 배운 것 하나: `public/`에 고정 파일명으로 두면 그림을 갈아 끼워도 캐시가
+    옛것을 계속 내준다. 배포는 정상인데 라이브만 옛 그림이었고, `?x=1`을 붙이면
+    새 그림이 나와서 잡았다. 지금은 `components/ring/cards/`에서 import 해
+    내용 해시가 URL에 박힌다. `probe-cards.mjs`가 라이브에서 이걸 검증한다.
+  - 배운 것 둘: 그러면서 `p.file`이 파일명이 아니라 절대 URL이 됐는데,
+    `atlas.js`가 앞에 붙이던 `/`가 `//_next/...`(프로토콜 상대)가 되어 카드가
+    전부 새까맣게 나왔다. 스크린샷으로 잡았다 — 콘솔 에러만 봤으면 놓쳤을 것이다.
+
 ## 다음에 손대면 좋을 곳 (모션)
 
 - 다이브 복귀(닫기)는 아직 들어갈 때의 두 박자를 그대로 뒤집기만 한다.
