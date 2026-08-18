@@ -328,10 +328,21 @@ export default function Carousel() {
         viewW: viewW,
       });
 
+    // Tight: shade at 3/4 of the usual cap. The ring already fills most of
+    // a phone, so cutting empty pixels (007) cannot get the morph p95 off
+    // 50ms — only fewer fragments on the cards themselves can. 0.75 of
+    // min(dpr,2) is 1.5 on a typical phone (H3) and 0.75 in the DPR-1
+    // harness, which is what lets the rig see it.
+    const applyPixelRatio = () => {
+      const cap = Math.min(window.devicePixelRatio, 2);
+      renderer.setPixelRatio(tightNow ? cap * 0.75 : cap);
+    };
+
     const resize = () => {
       viewW = container.clientWidth;
       viewH = container.clientHeight;
       refit();
+      applyPixelRatio();
       renderer.setSize(viewW, viewH);
       camera.left = -viewW / 2;
       camera.right = viewW / 2;
