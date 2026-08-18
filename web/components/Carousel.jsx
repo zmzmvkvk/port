@@ -264,6 +264,34 @@ export default function Carousel() {
       // nothing and stays sharp — the glyphs are drawn at 2x display already.
       const k = fit * textK * (tight ? params.tightSplit : 1);
       textGroup.scale.set(k, k, 1);
+
+      // And it sits clear of the ring rather than inside its eye.
+      //
+      // Inside is where this started, and it worked while the heading was
+      // short: a ring of this radius leaves a hole about 240px across at the
+      // reference window, which "Works '26" fits inside and "김서준 — Works"
+      // does not. So the first and last glyphs sat behind cards for over a
+      // second at every width, and on a phone the name lost its first syllable
+      // for the whole entry — the one word on the page that cannot be allowed
+      // to break.
+      //
+      // Drawing the type over the planes instead is not the fix it looks like:
+      // a third of the cards are near-black grounds and so is the type. And
+      // shrinking it to fit the hole ends at ~15px on a phone. Lifting it off
+      // the ring's own outer edge keeps it whole in every band at full size.
+      const cardW = params.planeSize * planeK * fit;
+      const cardDepth = (params.radial ? cardW / 1.5 : cardW) * 0.5;
+      // Measured before the stage move, because that is the ring the heading
+      // actually shares the screen with — once the ring grows and leaves, the
+      // heading is already fading.
+      const outer = params.ringRadius * radiusK * fit + cardDepth;
+      const halfType = params.textSize * 0.5 * k;
+      // Never pushed off the top: a short window would rather have the heading
+      // a little tight against the ring than not have it on screen.
+      textGroup.position.y = Math.min(
+        outer + halfType + params.textGap * fit,
+        viewH * 0.5 - halfType - 8,
+      );
     };
 
     const styleMeta = () =>
@@ -1262,14 +1290,17 @@ export default function Carousel() {
         );
       }
 
-      // The heading has done its job by the time the ring is in place, and
-      // from then on it is behind the front card. Timed off whichever staging
-      // move finishes last, so it still lands with them if either is retimed.
+      // The heading leaves as the ring leaves, not once the ring has arrived.
+      //
+      // It used to be timed off the landing, which put it at full strength for
+      // the whole of the stage move — and the stage move is the ring growing
+      // several times over and sweeping across the middle of the screen, so
+      // for about two seconds cards crossed the words while the words were
+      // doing nothing about it. Keyed to the departure instead, the same
+      // crossing reads as the ring wiping the heading away, which is what it
+      // was always supposed to be.
       if (params.textOut && splitText.fades.length) {
-        const landed = Math.max(
-          stageStart + params.spinDelay + params.spinTime,
-          stageStart + params.moveDelay + params.moveTime,
-        );
+        const landed = stageStart + params.moveDelay;
         tl.fromTo(
           splitText.fades,
           { value: 1 },

@@ -124,6 +124,7 @@ export function mountGui(GUI, { params, state, info, actions }) {
   const text = gui.addFolder("text");
   text.add(params, "text").onFinishChange(rebuildText);
   text.add(params, "textSize", 8, 200, 1).onChange(rebuildText);
+  text.add(params, "textGap", 0, 200, 1).name("clear of ring (px)").onChange(refit); // prettier-ignore
   text
     // Only families with an @font-face block in globals.css — anything else
     // silently falls back to system sans and looks like a bug. There is one
