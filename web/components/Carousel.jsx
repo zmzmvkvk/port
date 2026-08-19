@@ -788,10 +788,14 @@ export default function Carousel() {
     const skipEntry = () => {
       if (!tl || interactive) return;
       skipped = true;
-      gsap.killTweensOf(state);
-      // 이벤트를 죽인 채 끝으로 보내고, 타임라인이 콜백으로 처리하던 마무리는
-      // 손으로 맞춘다. 그래야 중간에 멈춰 있는 addPause 를 지나도 상태가 남지
-      // 않는다.
+      // 재생목록 자체를 끝으로 보낸다. 여기서 gsap.killTweensOf(state) 를 부르면
+      // 안 된다 — 링을 펼치고 옮기는 트윈이 바로 이 타임라인의 자식이라,
+      // 죽이고 나면 progress(1) 이 적용할 것이 남지 않아 씨앗만 덩그러니 남는다.
+      // 실제로 그렇게 나갔고, "이름이 공지되는가"만 보던 검증이 그걸 놓쳤다.
+      // 대기 중인 resume 은 위의 skipped 플래그가 막는다.
+      //
+      // 이벤트는 죽인 채 보낸다. 콜백까지 재생하면 타임라인이 중간에 걸어 둔
+      // addPause 가 다시 playhead 를 붙잡는다.
       tl.progress(1, true).pause();
       textGroup.visible = false;
       if (loaderEl) gsap.set(loaderEl, { opacity: 0 });
