@@ -265,6 +265,26 @@ export default function Carousel() {
     let narrowNow = false;
     let tightNow = false;
 
+    // 정지 상태의 링을 재는 데 쓰는 값들. 레이아웃 루프와 같은 규칙을 따른다.
+    const ring = { outer: 0, cx: 0, cy: 0 };
+    const endScaleFor = () =>
+      narrowNow ? params.narrowEndScale : params.endScale;
+    const restCx = (R, W) => {
+      const posX = tightNow
+        ? params.tightPosX
+        : narrowNow
+          ? params.narrowPosX
+          : params.posX;
+      let cx = posX * viewW * 0.5;
+      if (tightNow) {
+        const halfAcross = (params.radial ? W : W / 1.5) * 0.5;
+        const over =
+          viewW * 0.5 + cx + R + halfAcross - (viewW - params.tightInset * fit);
+        if (over > 0) cx -= over;
+      }
+      return cx;
+    };
+
     const refit = () => {
       const byW = viewW / Math.max(1, params.refWidth);
       const byH = viewH / Math.max(1, params.refHeight);
@@ -320,6 +340,17 @@ export default function Carousel() {
         outer + halfType + params.textGap * fit,
         viewH * 0.5 - halfType - 8,
       );
+
+      // 정지 상태(shift=1)의 링. 이름 자리를 정하는 쪽이 링이 어디까지
+      // 뻗는지 알아야 한다 — 좁은 폰에서는 호가 우하단 이름 행까지 올라온다.
+      const endG = endScaleFor() * fit;
+      const restW = params.planeSize * planeK * endG;
+      const restR = params.ringRadius * radiusK * endG;
+      // 카드는 회전해 있으므로 반지름이 아니라 반대각선까지가 바깥 한계다.
+      const restReach = restR + Math.hypot(restW, restW / 1.5) * 0.5;
+      ring.outer = restReach;
+      ring.cx = viewW * 0.5 + restCx(restR, restW);
+      ring.cy = viewH * 0.5;
     };
 
     const styleMeta = () =>
@@ -328,6 +359,8 @@ export default function Carousel() {
         tight: tightNow,
         narrow: narrowNow,
         viewW: viewW,
+        viewH: viewH,
+        ring,
       });
 
     // Tight: shade at 3/4 of the usual cap. The ring already fills most of
@@ -482,6 +515,11 @@ export default function Carousel() {
       if (diveI >= 0) return;
       diveI = i;
       interactive = false;
+      // 상세는 모달이다 (aria-modal). 뒤에 남은 링이 계속 포커스를 받으면
+      // 모달이라고 말해 놓고 Tab 은 뒤로 새는 화면이 된다 — 실제로 그랬다.
+      // inert 하나로 포커스와 포인터와 접근성 트리가 한꺼번에 빠지고, 남는
+      // 포커스 대상이 레이어 안뿐이라 가둠(trap)이 저절로 생긴다.
+      container.inert = true;
       // Latched now: `shown` cannot change mid-dive, but the panel should
       // open on what was clicked, not on whatever is front on completion.
       const opened = shown;
@@ -512,6 +550,10 @@ export default function Carousel() {
 
     const closeCard = () => {
       if (diveI < 0) return;
+      container.inert = false;
+      // 닫기 버튼은 곧 사라지므로, 초점을 명시적으로 링에 돌려준다. 두지
+      // 않으면 body 로 떨어져 키보드 사용자가 있던 자리를 잃는다.
+      container.focus({ preventScroll: true });
       gsap.killTweensOf(state, "dive");
       gsap.to(state, {
         dive: 0,

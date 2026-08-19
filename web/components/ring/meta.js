@@ -26,6 +26,12 @@ import { clamp01 } from "./utils";
  * the other word, and a missing one would move it.
  */
 
+// 가장 긴 이름이 몇 em 인가. 한글은 글자당 거의 1em, 라틴은 그 절반쯤이다.
+// 상수로 박아 두면 이름이 바뀌었을 때 조용히 틀린다.
+const emsOf = (t) =>
+  [...t].reduce((n, c) => n + (/[가-힣]/.test(c) ? 1 : 0.55), 0);
+const LONGEST_NAME_EMS = Math.max(...PROJECTS.map((p) => emsOf(p.name)));
+
 const SIDES = ["left", "right"];
 const SLOTS = 2;
 
@@ -154,10 +160,35 @@ export function createMeta(refs, params) {
   //            the front card, so both lockups stack in the bottom-right
   //            corner: [type . year] small, over [number . name]
   //   tight  — the name alone, bottom-right
-  const style = ({ textK, tight, narrow, viewW }) => {
+  const style = ({ textK, tight, narrow, viewW, viewH, ring }) => {
     // Everything downstream is derived from this one figure: the box height,
     // so the filter region, so where the corner offset has to drop the box to.
-    const bigVw = params.nameSize * textK * (tight ? params.tightName : 1);
+    let bigVw = params.nameSize * textK * (tight ? params.tightName : 1);
+
+    // 좁고 낮은 화면에서는 링의 호가 우하단 이름 행까지 올라온다. 320x568 에서
+    // 재 보면 이름 뒤의 9% 가 카드였고, 그 카드가 먹색이라 첫 글자가 통째로
+    // 사라졌다 — 자기 이름이 지워지는 자리다.
+    //
+    // 이름 행의 높이에서 링이 오른쪽으로 어디까지 뻗는지 풀어 보고, 그 안으로
+    // 들어오면 그만큼 글자를 줄여 호 바깥으로 빼낸다. 뷰포트 폭으로 조건을
+    // 걸지 않는 이유는, 같은 폭이라도 화면이 낮으면 호가 더 올라오기 때문이다.
+    if (tight && ring && viewH) {
+      const rowY = viewH - params.tightNameBottom - (bigVw * viewW) / 200;
+      const dy = Math.abs(rowY - ring.cy);
+      if (dy < ring.outer) {
+        const reachX = ring.cx + Math.sqrt(ring.outer * ring.outer - dy * dy);
+        const room = viewW - params.tightNameRight - reachX;
+        // 이 자리에 들어갈 수 있는 글자 폭. 한글은 글자당 대략 1em 이고
+        // 이름은 최대 일곱 자 남짓이라, em 기준으로 잡아도 충분히 안전하다.
+        const need = bigVw * (viewW / 100) * LONGEST_NAME_EMS;
+        // 여유를 조금 둔다. 어림한 폭이 실제보다 몇 픽셀 넓게 나오는 것만으로
+        // 아직 겹치지도 않은 화면의 이름이 줄어들면 그게 더 손해다.
+        if (room > 0 && need > room * 1.08) {
+          const shrunk = (room / need) * bigVw;
+          bigVw = Math.max(shrunk, bigVw * params.tightNameFloor);
+        }
+      }
+    }
     const big = `${bigVw}vw`;
     const smallVw = params.idxSize * textK;
     const small = `${smallVw}vw`;

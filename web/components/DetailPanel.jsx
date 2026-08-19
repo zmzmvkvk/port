@@ -11,10 +11,29 @@ const IN = "cubic-bezier(.16,.84,.44,1)";
  * 끝나기 전에(viscose:open) 이 레이어가 확대된 카드 아트 위로 떠오른다.
  * 팝업이 아니라 그 카드의 안쪽 면 — 한 줄 주장, 그리고 문제 / 한 일 / 남긴 것.
  */
+// 컴포넌트 밖에 둔다. render 안에서 정의하면 렌더마다 새로운 타입이 되어
+// 자식이 매번 언마운트·재마운트되고, 방금 붙인 전환이 처음부터 다시 시작한다.
+function Section({ style, label, children }) {
+  return (
+    <section
+      style={style}
+      className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-x-4 gap-y-1"
+    >
+      <h3
+        style={{ fontFamily: FACE }}
+        className="pt-1 text-[11px] font-medium tracking-[0.08em] text-[#a2542f]"
+      >
+        {label}
+      </h3>
+      <div className="text-[15px] leading-[1.65] text-black/80">{children}</div>
+    </section>
+  );
+}
+
 export default function DetailPanel() {
   const [index, setIndex] = useState(-1);
   const [shown, setShown] = useState(false);
-  const closeBtnRef = useRef(null);
+  const dialogRef = useRef(null);
   const timerRef = useRef(0);
 
   const close = () => {
@@ -45,7 +64,9 @@ export default function DetailPanel() {
     if (index < 0) return;
     const raf = requestAnimationFrame(() => {
       setShown(true);
-      closeBtnRef.current?.focus({ preventScroll: true });
+      // 닫기 버튼이 아니라 레이어 자신에 초점을 준다. 스크린리더가
+      // 먼저 읽어야 하는 것은 "닫기 버튼"이 아니라 어떤 작업을 열었는가다.
+      dialogRef.current?.focus({ preventScroll: true });
     });
     return () => cancelAnimationFrame(raf);
   }, [index]);
@@ -62,18 +83,6 @@ export default function DetailPanel() {
     transitionDelay: shown ? `${i * 70}ms` : "0ms",
   });
 
-  const Section = ({ n, label, children }) => (
-    <section style={rise(n)} className="grid grid-cols-[4.5rem_minmax(0,1fr)] gap-x-4 gap-y-1">
-      <h3
-        style={{ fontFamily: FACE }}
-        className="pt-1 text-[11px] font-medium tracking-[0.08em] text-[#a2542f]"
-      >
-        {label}
-      </h3>
-      <div className="text-[15px] leading-[1.65] text-black/80">{children}</div>
-    </section>
-  );
-
   return (
     <div
       className={`fixed inset-0 z-50 overflow-y-auto bg-[#fafafa]/[.93] text-[#0a0a0a] transition-opacity duration-[360ms] ease-out ${
@@ -83,8 +92,10 @@ export default function DetailPanel() {
       role="presentation"
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
+        tabIndex={-1}
         aria-label={project.name}
         onClick={(e) => e.stopPropagation()}
         style={{ fontFamily: FACE }}
@@ -107,7 +118,6 @@ export default function DetailPanel() {
             {project.year}
           </p>
           <button
-            ref={closeBtnRef}
             type="button"
             onClick={close}
             aria-label="닫기"
@@ -135,10 +145,10 @@ export default function DetailPanel() {
         </div>
 
         <div className="flex max-w-prose flex-col gap-6 border-t border-black/10 pt-7">
-          <Section n={2} label="문제">
+          <Section style={rise(2)} label="문제">
             <p>{project.problem}</p>
           </Section>
-          <Section n={3} label="한 일">
+          <Section style={rise(3)} label="한 일">
             <ul className="flex flex-col gap-2">
               {project.did.map((line) => (
                 <li key={line} className="flex gap-2.5">
@@ -151,7 +161,7 @@ export default function DetailPanel() {
               ))}
             </ul>
           </Section>
-          <Section n={4} label="남긴 것">
+          <Section style={rise(4)} label="남긴 것">
             <p>{project.left}</p>
             {project.reported ? (
               <p className="mt-2 text-[13px] leading-relaxed text-black/45">

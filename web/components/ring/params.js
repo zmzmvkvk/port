@@ -59,6 +59,9 @@ export function defaultParams() {
     tightNameRight: 16, // px
     tightMetaWidth: 70, // vw of box, and so of filter region, around it
     tightInset: 24, // px the front card keeps clear of the right edge
+    // 우하단 이름이 링의 호와 겹칠 때, 아무리 좁아도 이보다 더는 줄이지 않는
+    // 하한. 이름의 길이는 meta.js 가 실제 프로젝트 이름에서 잰다.
+    tightNameFloor: 0.62,
 
     // -- geometry, all at the reference window ---------------------------
     planeSize: 90, // long edge in px; aspect locked at 1.5 : 1
