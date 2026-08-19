@@ -92,22 +92,19 @@ Generation is not deterministic — the same prompt gives a different picture
 every time — which is why `scripts/cards-src/` is committed. Those masters, not
 the prompts, are what reproduces what is actually on the site.
 
-Two things about the set are load-bearing, and both are easy to undo by
-accident when regenerating one card:
+The nine cards are **not a matching series.** Each project gets its own world —
+night desk, machine room, honey-glass ring, fashion rack, mall atrium,
+blueprint kit, hospital dawn, stacked skylines, tropical campus. Shared studio
+lighting and a three-tone stationery palette made them look like the same
+picture nine times; do not put that back.
 
-- **One material, one light.** Every card is a cut-paper still life under the
-  same soft daylight, in the same three tones. The set before this one mixed a
-  dark 3D particle render, a flat illustration and a glossy phone mockup, and
-  nine projects read as nine stock images from nine different places. A single
-  new card in a different register puts that back.
-- **The grounds alternate.** Three cream, three near-black, three rust, ordered
-  so no two neighbours on the ring share a ground. The page is `#fafafa`; nine
-  pale cards would dissolve into it, and the ring would lose its rhythm.
+What still has to hold:
 
-Silhouettes are deliberately unlike each other — stack, punched sheet, ring,
-fan, triptych, grid, zigzag, rosette, leaf — because at rest a card is about
-90px wide. Anything with fine detail (a wireframe, a components sheet) reads as
-noise at that size; the earlier set had two of those.
+- **Thumbnail colour.** At rest a card is ~90px. Neighbours on the ring must
+  not share a dominant hue (navy, lime-black, honey, camel, crimson, blueprint,
+  teal-mist, neon-navy, palm-gold). Pale-on-pale dissolves into `#fafafa`.
+- **No readable type.** Grok invents glyphs. Screens are shapes, not copy.
+- **Masters live in `scripts/cards-src/`.** Prompts are not reproducible.
 
 ## The three coordinate ideas
 

@@ -75,7 +75,12 @@ roomy.page(소스: `web/`, Next.js 정적 export → Cloudflare Pages)에서
      끝난 뒤가 아니라 62% 지점에서 넘겨받아 블록이 차례로 올라온다.
      증거: shots/dive-*.
 
-- 카드 아트 교체 (2026-08-18): 아홉 장을 컷 페이퍼 정물 한 세트로 다시 만들었다.
+- 카드 아트 교체 (2026-08-18): 아홉 장을 Tami 포트폴리오 덱 톤의 목업 정물로
+  다시 만들었다. 흰 16:9 보드·폰/태블릿·플로팅 UI 카드, 카피는 회색 바.
+  바탕은 크림·블랙·러스트 교차 유지. `generate-cards.mjs` → `convert-cards.mjs`.
+  컷 페이퍼 세트는 그 전 커밋에 있다.
+
+- 카드 아트 교체 (2026-08-18, 이전): 아홉 장을 컷 페이퍼 정물 한 세트로 다시 만들었다.
   로컬 grok 프록시(`web/scripts/generate-cards.mjs`)로 생성 → `convert-cards.mjs`로
   768x512 webp. 전/후: `shots/cards-before.png`, `shots/cards-after.png`.
   세트 무게 199KB → 136KB (엔트리 타임라인이 이걸 기다린다).

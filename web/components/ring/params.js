@@ -226,7 +226,7 @@ export function defaultParams() {
 
     // -- the cursor tag, drawn in the same shader pass --------------------
     tagFrom: 1024, // viewport width it needs; below that there is no cursor
-    tagText: "View",
+    tagText: "열기",
     tagSize: 14,
     tagWeight: 500,
     tagArrow: 14, // px, the svg in /public
