@@ -14,7 +14,7 @@ const server=createServer(async(req,res)=>{let p=decodeURIComponent(new URL(req.
   try{const b=await readFile(join(root,p));res.writeHead(200,{"content-type":MIME[extname(p)]??"application/octet-stream"});res.end(b);}catch{res.writeHead(404);res.end();}});
 await new Promise(ok=>server.listen(4680,ok));
 const sizes=(process.argv.slice(2).length?process.argv.slice(2):["320x568","360x640","390x844","430x932"]).map(s=>s.split("x").map(Number));
-const browser=await chromium.launch({headless:true});
+const browser=await chromium.launch({headless:true,args:["--enable-gpu"]});
 for(const [w,h] of sizes){
   const ctx=await browser.newContext({viewport:{width:w,height:h},deviceScaleFactor:1,isMobile:true,hasTouch:true});
   const page=await ctx.newPage();

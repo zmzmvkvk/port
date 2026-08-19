@@ -10,7 +10,7 @@ const MIME={".html":"text/html",".js":"text/javascript",".css":"text/css",".webp
 const server=createServer(async(req,res)=>{let p=decodeURIComponent(new URL(req.url,"http://x").pathname);if(p.endsWith("/"))p+="index.html";
   try{const b=await readFile(join(root,p));res.writeHead(200,{"content-type":MIME[extname(p)]??"application/octet-stream"});res.end(b);}catch{res.writeHead(404);res.end();}});
 await new Promise(ok=>server.listen(4685,ok));
-const browser=await chromium.launch({headless:true});
+const browser=await chromium.launch({headless:true,args:["--enable-gpu"]});
 const page=await (await browser.newContext({viewport:{width:1512,height:982}})).newPage();
 await page.goto("http://127.0.0.1:4685/");
 await page.waitForFunction(()=>document.querySelector('div[aria-live="polite"]')?.textContent.trim().length>0,{timeout:40000});

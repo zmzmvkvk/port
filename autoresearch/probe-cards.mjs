@@ -2,7 +2,7 @@
 // 어떤 캐시 정책으로 오는지 본다. 사용: node probe-cards.mjs [url]
 import { chromium } from "playwright";
 const url = process.argv[2] ?? "https://roomy.page/";
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({ headless: true, args: ["--enable-gpu"] });
 const page = await (await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true })).newPage();
 const seen = [];
 page.on("response", async (r) => {

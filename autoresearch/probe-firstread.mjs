@@ -2,7 +2,7 @@
 import { chromium } from "playwright";
 const url = process.argv[2] ?? "https://roomy.page/";
 const net = process.argv[3] ?? "none";
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({ headless: true, args: ["--enable-gpu"] });
 const rm = process.argv[4] === "reduce";
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, reducedMotion: rm ? "reduce" : "no-preference" });
 const page = await ctx.newPage();
