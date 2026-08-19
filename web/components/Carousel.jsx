@@ -1827,9 +1827,6 @@ export default function Carousel() {
 
   return (
     <>
-      {/* touch-none, or the browser claims the gesture for panning and the
-          pointermove stream dies mid-drag. Nothing here scrolls — the swipe
-          is the carousel. */}
       {/* 엔트리를 멈출 문. 문서 순서상 가장 앞에 둔다 — Tab 을 처음 눌렀을 때
           가장 먼저 잡혀야 의미가 있고, 마우스가 없는 사람에게도 보여야 한다.
           hover 로만 드러나는 방식은 키보드·음성 사용자를 빼놓는다. */}
