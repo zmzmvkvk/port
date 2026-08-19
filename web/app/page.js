@@ -1,5 +1,4 @@
 import Carousel from "@/components/Carousel";
-import ClaimsPanel from "@/components/ClaimsPanel";
 import DetailPanel from "@/components/DetailPanel";
 import ReadableCopy from "@/components/ReadableCopy";
 
@@ -11,7 +10,6 @@ export default function Page() {
       <ReadableCopy />
       <Carousel />
       <DetailPanel />
-      <ClaimsPanel />
     </>
   );
 }

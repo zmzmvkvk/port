@@ -567,16 +567,6 @@ export default function Carousel() {
       fadeChrome(1);
     };
 
-    // 링 위에 다른 면이 열려 있는 동안은 링이 조작 대상이 아니다. 다이브가
-    // 쓰는 것과 같은 처리를 바깥에서도 부를 수 있게 열어 둔다 — 지금은
-    // 주장과 근거 레이어가 쓴다.
-    const onOverlay = (e) => {
-      if (diveI >= 0) return; // 다이브가 이미 관리 중이면 건드리지 않는다
-      container.inert = !!e.detail;
-      if (!e.detail) container.focus({ preventScroll: true });
-    };
-    window.addEventListener("viscose:overlay", onOverlay);
-
     const onCloseEvent = () => closeCard();
     // The panel sends viscose:close for its own reasons; Escape here covers
     // the gap where the dive is in flight and the panel does not exist yet.
@@ -1799,7 +1789,6 @@ export default function Carousel() {
 
       window.removeEventListener("resize", onResize);
       window.removeEventListener("viscose:close", onCloseEvent);
-      window.removeEventListener("viscose:overlay", onOverlay);
       window.removeEventListener("keydown", onDiveKey);
       container.removeEventListener("wheel", onWheel);
       container.removeEventListener("pointerdown", onPointerDown);
