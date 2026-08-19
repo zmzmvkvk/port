@@ -171,7 +171,59 @@ export default function DetailPanel() {
           </Section>
         </div>
 
-        <ul style={rise(5)} className="flex flex-wrap gap-2">
+        {/* 이 자리 안에서 따로 만든 것. 형제 카드로 두면 3년짜리 재직과 그 안의
+            작업이 같은 무게로 보이므로, 안에 접어 둔 채로 제 몫만큼만 낸다. */}
+        {project.inside ? (
+          <div
+            style={rise(5)}
+            className="max-w-prose border-t border-black/10 pt-7"
+          >
+            <p
+              style={{ fontFamily: FACE }}
+              className="text-[11px] font-medium tracking-[0.08em] text-[#a2542f]"
+            >
+              이 자리 안에서
+            </p>
+            <h3 className="mt-2 text-[19px] font-medium leading-snug">
+              {project.inside.name}
+            </h3>
+            <p className="mt-2 text-[15px] leading-[1.65] text-black/80">
+              {project.inside.line}
+            </p>
+            <p
+              style={{ fontFamily: FACE }}
+              className="mt-2 text-[13px] text-black/45"
+            >
+              {project.inside.role}
+              {"  ·  "}
+              {project.inside.period}
+            </p>
+            <p className="mt-4 text-[15px] leading-[1.65] text-black/70">
+              {project.inside.problem}
+            </p>
+            <ul className="mt-3 flex flex-col gap-2 text-[15px] leading-[1.65] text-black/80">
+              {project.inside.did.map((line) => (
+                <li key={line} className="flex gap-2.5">
+                  <span
+                    aria-hidden="true"
+                    className="mt-[11px] h-1 w-1 shrink-0 rounded-full bg-[#a2542f]"
+                  />
+                  {line}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 text-[15px] leading-[1.65] text-black/70">
+              {project.inside.left}
+            </p>
+            {project.inside.reported ? (
+              <p className="mt-2 text-[13px] leading-relaxed text-black/45">
+                자기보고 — {project.inside.reported}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
+
+        <ul style={rise(6)} className="flex flex-wrap gap-2">
           {project.tags.map((tag) => (
             <li
               key={tag}
@@ -184,7 +236,7 @@ export default function DetailPanel() {
         </ul>
 
         <footer
-          style={rise(6)}
+          style={rise(7)}
           className="border-t border-black/10 pt-4 text-xs leading-relaxed text-black/40"
         >
           공개 가능한 사실만 사용한 비식별 재구성입니다. 검증되지 않은 수치는

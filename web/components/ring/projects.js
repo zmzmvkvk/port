@@ -7,13 +7,10 @@
 // 사실만 사용한 비식별 재구성이며, 검증되지 않은 수치는 reported 로만 둔다.
 import card01 from "./cards/01.webp";
 import card02 from "./cards/02.webp";
-import card03 from "./cards/03.webp";
 import card04 from "./cards/04.webp";
 import card05 from "./cards/05.webp";
-import card06 from "./cards/06.webp";
 import card07 from "./cards/07.webp";
 import card08 from "./cards/08.webp";
-import card09 from "./cards/09.webp";
 
 // 사이트의 텍스트 원본. 링은 WebGL 로 그려지므로, 이 데이터가 문서에
 // 들어가지 않으면 페이지에는 읽을 것이 남지 않는다 — 실제로 그랬다.
@@ -63,24 +60,6 @@ export const PROJECTS = [
     tags: ["AI 워크플로", "작업 규칙", "품질 게이트"],
   },
   {
-    src: card03.src,
-    name: "roomy.page",
-    type: "웹사이트",
-    year: "2026",
-    period: "2026.08",
-    role: "설계 · 구현 · 배포",
-    line: "경력을 문장으로 포장하지 않고, 사실·근거·주장을 나눠 둔 위에서 이 링을 돌린다.",
-    problem:
-      "포트폴리오는 주장을 사실처럼 적기 쉽다. 수치와 소유가 한 문장에 섞이면 검증할 곳이 없다.",
-    did: [
-      "경력 온톨로지에서 공개해도 되는 것만 꺼내 아홉 장의 링으로 구성했다.",
-      "링은 DOM 카드가 아니라 풀스크린 셰이더 한 장이다. 이웃이 녹고 실이 생기는 이유는 그 한 패스다.",
-      "검증되지 않은 수치는 이 패널에서 자기보고로만 남긴다.",
-    ],
-    left: "이 사이트. Cloudflare Pages에 정적 배포한다.",
-    tags: ["WebGL", "Next.js", "Cloudflare"],
-  },
-  {
     src: card04.src,
     name: "버킷스토어",
     type: "프리랜스 · 퍼블리셔",
@@ -112,26 +91,26 @@ export const PROJECTS = [
       "반복 UI를 React 템플릿과 공통 모듈로 묶었다.",
       "웹뷰 호환 이슈를 모아 마크업 가이드로 남겼다.",
     ],
-    left: "3년 4개월의 운영. 생산성 숫자는 다음 카드에 자기보고로만 적는다.",
+    left: "3년 4개월의 운영. 생산성 숫자는 아래 자기보고로만 적는다.",
+    // 05 안에서 한 일. 형제 카드로 두었을 때는 "3년 4개월 재직"과 "그 안에서
+    // 만든 것"이 같은 무게로 보였다. 안으로 접으면 읽는 사람이 위계를
+    // 짐작하지 않아도 된다.
+    inside: {
+      name: "공통 템플릿 시스템",
+      period: "롯데백화점 앱 재직 중",
+      role: "구조 · 가이드",
+      line: "같은 프로모션을 다시 그리지 않도록, 재사용 단위와 금지 사항을 코드와 문장으로 남겼다.",
+      problem:
+        "매주 비슷한 페이지를 새로 짰고, 웹뷰에서 스크롤·터치·모달이 겹치는 사고가 같은 형태로 반복됐다.",
+      did: [
+        "자주 쓰는 UI와 레이아웃을 꺼내 React 템플릿과 공통 모듈로 만들었다.",
+        "웹뷰에서 재현되는 스크롤·터치·모달 겹침을 마크업 가이드로 미리 막았다.",
+      ],
+      left: "운영 단위가 페이지가 아니라 모듈로 바뀌었다. 생산성 수치는 이력서 기록이며 공개 검증 자료는 아직 없다.",
+      reported: "이력서 기준 운영 생산성 30% 이상 향상",
+      tags: ["React", "컴포넌트화", "운영 UI"],
+    },
     tags: ["React", "공통 템플릿", "WebView"],
-  },
-  {
-    src: card06.src,
-    name: "공통 템플릿 시스템",
-    type: "운영 개선",
-    year: "2024",
-    period: "롯데백화점 앱 재직 중",
-    role: "구조 · 가이드",
-    line: "같은 프로모션을 다시 그리지 않도록, 재사용 단위와 금지 사항을 코드와 문장으로 남겼다.",
-    problem:
-      "매주 비슷한 페이지를 새로 짰고, 웹뷰에서 스크롤·터치·모달이 겹치는 사고가 같은 형태로 반복됐다.",
-    did: [
-      "자주 쓰는 UI와 레이아웃을 꺼내 React 템플릿과 공통 모듈로 만들었다.",
-      "웹뷰에서 재현되는 스크롤·터치·모달 겹침을 마크업 가이드로 미리 막았다.",
-    ],
-    left: "운영 단위가 페이지가 아니라 모듈로 바뀌었다. 생산성 수치는 이력서 기록이며 공개 검증 자료는 아직 없다.",
-    reported: "이력서 기준 운영 생산성 30% 이상 향상",
-    tags: ["React", "컴포넌트화", "운영 UI"],
   },
   {
     src: card07.src,
@@ -167,11 +146,33 @@ export const PROJECTS = [
     left: "여섯 달. 도입 규모나 이후 사용률은 공개할 숫자가 없다.",
     tags: ["Vue.js", "SCSS", "i18n"],
   },
+];
+
+export const IMAGE_FILES = PROJECTS.map((p) => p.src);
+
+// 링에 두지 않는 것들. 하나는 지금 보고 있는 이 사이트이고 하나는 학력이라,
+// 둘 다 "맡아서 만든 화면"과는 층위가 다르다. 그렇다고 지울 내용은 아니어서
+// 링 아래 한 줄과 문서 사본에만 남긴다.
+export const ASIDES = [
   {
-    src: card09.src,
+    name: "roomy.page",
+    type: "웹사이트",
+    period: "2026.08",
+    role: "설계 · 구현 · 배포",
+    line: "경력을 문장으로 포장하지 않고, 사실·근거·주장을 나눠 둔 위에서 이 링을 돌린다.",
+    problem:
+      "포트폴리오는 주장을 사실처럼 적기 쉽다. 수치와 소유가 한 문장에 섞이면 검증할 곳이 없다.",
+    did: [
+      "경력 온톨로지에서 공개해도 되는 것만 꺼내 여섯 장의 링으로 구성했다.",
+      "링은 DOM 카드가 아니라 풀스크린 셰이더 한 장이다. 이웃이 녹고 실이 생기는 이유는 그 한 패스다.",
+      "검증되지 않은 수치는 이 패널에서 자기보고로만 남긴다.",
+    ],
+    left: "이 사이트. Cloudflare Pages에 정적 배포한다.",
+    tags: ["WebGL", "Next.js", "Cloudflare"],
+  },
+  {
     name: "Taylor's University",
     type: "학력 · 학사",
-    year: "2020",
     period: "2016.08 — 2020.10",
     role: "International Hospitality Management",
     line: "환대가 서비스의 구조라는 걸, 다른 언어권에서 학위로 끝냈다.",
@@ -185,5 +186,3 @@ export const PROJECTS = [
     tags: ["Hospitality", "글로벌"],
   },
 ];
-
-export const IMAGE_FILES = PROJECTS.map((p) => p.src);

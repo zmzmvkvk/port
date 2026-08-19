@@ -41,7 +41,11 @@ export function defaultParams() {
     narrowPlane: 1.25,
     narrowRadius: 1.3, // cards grow faster than the arc, or the gaps close up
     narrowText: 1.5, // type cannot shrink like a picture can and stay readable
-    narrowPosX: -1.09,
+    // 반지름을 줄이면 앞 카드가 그만큼 왼쪽으로 따라온다. 무대 오프셋은
+    // 화면 폭의 비율이고 반지름은 아니어서, 둘이 같이 움직이지 않는다.
+    // 아래 세 값은 ringRadius 150 → 103 에서 앞 카드가 있던 자리를
+    // 유지하도록 되짚은 것이다 (front = viewW/2 + posX·viewW/2 + R·g).
+    narrowPosX: -0.87,
     narrowEndScale: 4.22,
     // In this band the ring is wide enough that the side lockups collide with
     // the front card, so both move to the bottom-right corner — [type . year]
@@ -66,9 +70,17 @@ export function defaultParams() {
     // -- geometry, all at the reference window ---------------------------
     planeSize: 90, // long edge in px; aspect locked at 1.5 : 1
     count: PROJECTS.length, // one plane per project, so the deal comes out even
-    // 9장 기준: 원본(18장, 340)과 이웃 간 시야각을 비슷하게 맞추려고 반지름을
-    // 줄였다. 함께 낮춘 posX가 앞 카드를 화면 중앙 부근에 되돌린다.
-    ringRadius: 150,
+    // 카드 수를 바꾸면 여기도 같이 바꿔야 한다. 그리고 재야 하는 것은 중심
+    // 사이의 거리가 아니라 카드 *안쪽 끝* 사이의 간격이다. 카드는 반지름
+    // 방향으로 길어서(radial), 안쪽 끝은 R − W/2 의 원 위에 놓인다:
+    //
+    //   안쪽 간격 = 2·(R − W/2)·sin(π/count) − H
+    //
+    // 중심 간 거리만 맞추면 안쪽이 겹친다. 9장에서 6장으로 줄이며 중심 간
+    // 거리를 보존해 봤더니(103) 모바일에서 안쪽이 44px 겹쳐 여섯 장이 한
+    // 덩어리로 녹아 버렸다. 120 은 안쪽 간격을 9장일 때와 같은 −8px,
+    // 즉 "겨우 맞닿아 goo 가 생기는" 상태로 되돌린 값이다.
+    ringRadius: 120,
     seed: 0, // where plane 0 sits, degrees (0 = 3 o'clock)
     radial: true, // long edge points outward; off = long edge along the ring
     radius: 6, // corner
@@ -96,7 +108,7 @@ export function defaultParams() {
     spinTime: 2.6,
     spinEase: "power2.inOut",
     spinDelay: 0,
-    posX: -0.88, // fraction of half the viewport width
+    posX: -0.7, // fraction of half the viewport width
     posY: 0,
     endScale: 4.46,
     moveTime: 2.2,
@@ -125,7 +137,12 @@ export function defaultParams() {
     diveHand: 0.62,
 
     // -- scroll / drag / click, live once the entry finishes --------------
-    scrollSpeed: 0.0022, // rad/s of angular velocity per px of wheel delta
+    // 카드 수를 바꾸면 이것도 같이 바꿔야 한다. 휠 한 번이 밀어 주는 각도는
+    // 고정인데 슬롯 폭은 2π/count 라, 장수를 줄이면 한 번 굴려서 반 슬롯을
+    // 못 넘고 제자리로 스냅해 돌아온다 — 9장(40°)에서 6장(60°)으로 줄였더니
+    // 실제로 그랬고, Frozen Metric 이 모프 12회 연속 미발생으로 잡아냈다.
+    // 0.0022 × (60/40) = 0.0033.
+    scrollSpeed: 0.0033, // rad/s of angular velocity per px of wheel delta
     damping: 0.94, // velocity kept per 60fps frame
     maxSpeed: 12, // rad/s, so one flick cannot run away
     dragSpeed: 1,

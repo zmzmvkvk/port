@@ -15,7 +15,7 @@ import { createMeta } from "./ring/meta";
 import { createSplitText } from "./ring/splitText";
 import { createTag, TAG_W, TAG_H } from "./ring/tag";
 import { defaultParams } from "./ring/params";
-import { IMAGE_FILES, PROJECTS } from "./ring/projects";
+import { ASIDES, IMAGE_FILES, PROJECTS } from "./ring/projects";
 import {
   TAU,
   HALF_PI,
@@ -1864,29 +1864,47 @@ export default function Carousel() {
       {/* Never takes the pointer: the canvas underneath handles the wheel and
           the drag, and the column has no business interrupting a throw that
           happens to pass under it. Sized from styleMeta, not a class, so it
-          takes the narrow bump with every other label. */}
-      <ul
+          takes the narrow bump with every other label — 크기는 이 컨테이너에
+          한 번만 걸고 안쪽 두 목록이 물려받는다. */}
+      <div
         ref={listRef}
-        aria-label="Projects"
         style={{
           fontFamily: '"Freesentation", ui-sans-serif, system-ui, sans-serif',
         }}
         className="pointer-events-none fixed right-[12vw] top-[2.4vh] z-10 flex flex-col items-start text-right leading-[1.4] tracking-[0.01em] text-[#0a0a0a] opacity-0 max-sm:hidden"
       >
-        {PROJECTS.map((p, i) => (
-          <li
-            key={p.name}
-            ref={(el) => {
-              itemsRef.current[i] = el;
-            }}
-            // No transition, deliberately: the colour turns over the moment
-            // the ring passes the halfway point between two slots.
-            style={{ opacity: 0.2 }}
-          >
-            {p.name}
-          </li>
-        ))}
-      </ul>
+        <ul aria-label="Projects" className="flex flex-col items-start">
+          {PROJECTS.map((p, i) => (
+            <li
+              key={p.name}
+              ref={(el) => {
+                itemsRef.current[i] = el;
+              }}
+              // No transition, deliberately: the colour turns over the moment
+              // the ring passes the halfway point between two slots.
+              style={{ opacity: 0.2 }}
+            >
+              {p.name}
+            </li>
+          ))}
+        </ul>
+
+        {/* 링에 세우지 않은 것들. 하나는 지금 보고 있는 이 사이트이고 하나는
+            학력이라, 맡아서 만든 화면과 나란히 세우면 위계가 뭉갠다. 지울
+            내용은 아니므로 색인 바로 아래에 각주로 남긴다. */}
+        <ul
+          aria-hidden="true"
+          className="mt-[1.2em] flex flex-col items-start text-[#0a0a0a]/30"
+        >
+          {ASIDES.map((a) => (
+            <li key={a.name}>
+              {a.name}
+              <span className="text-[#0a0a0a]/20">{"  ·  "}</span>
+              {a.type}
+            </li>
+          ))}
+        </ul>
+      </div>
 
       {/* Two rows per side, identical in structure and both carrying both
           words: one relays out while the other relays in. Which row paints

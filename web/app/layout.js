@@ -4,12 +4,12 @@ export const metadata = {
   metadataBase: new URL("https://roomy.page"),
   title: "김서준 — 프론트엔드 · 웹 퍼블리싱",
   description:
-    "반복되는 웹 운영을 페이지가 아니라 규칙·모듈·가이드로 바꿔 온 프론트엔드. 사실과 주장을 나눠 적은 작업 아홉 장.",
+    "반복되는 웹 운영을 페이지가 아니라 규칙·모듈·가이드로 바꿔 온 프론트엔드. 사실과 주장을 나눠 적은 작업들.",
   alternates: { canonical: "/" },
   openGraph: {
     type: "profile",
     title: "김서준 — 프론트엔드 · 웹 퍼블리싱",
-    description: "반복되는 웹 운영을 규칙·모듈·가이드로 바꿔 온 작업 아홉 장.",
+    description: "반복되는 웹 운영을 규칙·모듈·가이드로 바꿔 온 작업들.",
     url: "https://roomy.page/",
   },
 };
