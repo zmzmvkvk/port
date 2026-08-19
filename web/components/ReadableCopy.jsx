@@ -1,3 +1,4 @@
+import { CLAIMS, CLAIMS_INTRO, CLAIM_STATUS } from "./ring/claims";
 import { ASIDES, PROFILE, PROJECTS } from "./ring/projects";
 
 /**
@@ -78,6 +79,24 @@ export default function ReadableCopy() {
             ) : null}
 
             <p>{p.tags.join(", ")}</p>
+          </li>
+        ))}
+      </ol>
+
+      {/* 화면의 '주장과 근거' 레이어와 같은 내용. 둘이 갈라지면 어느 쪽이
+          맞는지 알 수 없게 되므로 같은 데이터에서 낸다. */}
+      <h2>{CLAIMS_INTRO.title}</h2>
+      <p>{CLAIMS_INTRO.body}</p>
+      <ol>
+        {CLAIMS.map((c) => (
+          <li key={c.id}>
+            <h3>{c.what}</h3>
+            <p>
+              {CLAIM_STATUS[c.status].label} · {c.where}
+            </p>
+            <p>출처 — {c.source}</p>
+            <p>근거 — {c.evidence ?? "아직 공개 가능한 근거가 없다."}</p>
+            <p>확인하려면 — {c.toVerify}</p>
           </li>
         ))}
       </ol>
