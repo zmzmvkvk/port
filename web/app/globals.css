@@ -42,3 +42,59 @@ body {
 canvas {
   display: block;
 }
+
+/* 문서 사본. 눈에는 보이지 않지만 스크린리더·크롤러에게는 그대로 열려 있다.
+   display:none 이나 visibility:hidden 은 접근성 트리에서도 지워 버리므로 쓸 수
+   없고, 잘라내기(clip)로 숨긴다. JavaScript 가 꺼진 경우에는 layout.js 의
+   noscript 스타일이 이 클립만 풀어 준다 — 아래 타이포그래피는 그때 쓰인다. */
+.readable-copy {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+  max-width: 42rem;
+  line-height: 1.7;
+  color: #0a0a0a;
+}
+
+.readable-copy h1 {
+  font-size: 1.75rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
+.readable-copy h2 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 2.5rem 0 0.5rem;
+}
+
+.readable-copy h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 1.75rem 0 0.25rem;
+}
+
+.readable-copy h4 {
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: #7a7a7a;
+  margin: 0.75rem 0 0.125rem;
+}
+
+.readable-copy ol,
+.readable-copy ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.readable-copy p {
+  color: #4a4a4a;
+  margin: 0.25rem 0;
+}

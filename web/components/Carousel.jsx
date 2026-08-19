@@ -43,6 +43,7 @@ export default function Carousel() {
   const itemsRef = useRef([]);
   const loaderRef = useRef(null);
   const liveRef = useRef(null);
+  const skipRef = useRef(null);
   // Per side: the box that positions the lockup, a wrapper that promotes the
   // pair onto its own layer, and the two rows that relay within it. See
   // ring/meta.js.
@@ -55,6 +56,7 @@ export default function Carousel() {
     const container = containerRef.current;
     const listEl = listRef.current;
     const loaderEl = loaderRef.current;
+    const skipEl = skipRef.current;
     // Async work (atlas decode, the lil-gui import) can land after cleanup
     // under StrictMode's double mount. Everything deferred checks this.
     let disposed = false;
@@ -373,6 +375,11 @@ export default function Carousel() {
     // layout pass and read by the meta gate at the end of the frame, which is
     // why it outlives the pass that sets it.
     let frontGap = Infinity;
+    // 그리고 그 평면이 누구인지. 키보드로 여는 쪽은 커서가 없으므로 hover 로
+    // 고른 `over` 를 쓸 수 없다.
+    let frontPlane = -1;
+    // 건너뛴 뒤에는 대기 중이던 콜백이 타임라인을 다시 굴리면 안 된다.
+    let skipped = false;
     // Which way "front" is: from the ring's centre toward the middle of the
     // screen. Once the ring is off centre that is no longer 3 o'clock.
     let frontAngle = 0;
@@ -664,6 +671,94 @@ export default function Carousel() {
     container.addEventListener("pointercancel", onPointerUp);
     container.addEventListener("pointerleave", onPointerLeave);
     container.addEventListener("click", onClick);
+
+    /* ----------------------------------------------------------- keyboard */
+    // 이 링은 포인터로만 돌릴 수 있었다. 측정해 보면 포커스 가능한 요소가 0개라
+    // Tab 을 아무리 눌러도 초점이 body 를 벗어나지 않았고, 화살표로도 Enter 로도
+    // 아무 일이 없었다 — 키보드나 스크린리더를 쓰는 사람은 아홉 개 작업의
+    // 상세에 도달할 방법이 아예 없었다는 뜻이다. 접근성을 직무로 적은 사람의
+    // 포트폴리오에서 이것보다 나쁜 결함은 없다.
+    //
+    // 캔버스를 감싼 컨테이너 하나만 포커스를 받게 하고 거기서 전부 처리한다.
+    // 카드마다 탭 정지점을 두는 편이 얼핏 친절해 보이지만, 아홉 개를 지나야
+    // 다음으로 갈 수 있게 되고 시각적으로는 하나만 앞에 있으므로 초점이 어디에
+    // 있는지 읽히지 않는다.
+    const slotStep = (dir) => {
+      if (!interactive || diveI >= 0) return;
+      const slot = TAU / Math.round(params.count);
+      stopPick();
+      spinVel = 0;
+      settling = false;
+      picking = true;
+      gsap.killTweensOf(state);
+      gsap.to(state, {
+        spin: state.spin + dir * slot,
+        duration: params.pickTime,
+        ease: params.pickEase,
+        onComplete: () => {
+          picking = false;
+        },
+      });
+    };
+
+    const onKeyDown = (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      switch (e.key) {
+        // 오른쪽 화살표가 목록의 다음 장(01 -> 02)이다. 링을 앞으로 돌리면
+        // 앞 슬롯은 뒤로 걸어가므로 부호가 뒤집혀 있다 — cellOf 와 같은 이유다.
+        case "ArrowRight":
+        case "ArrowDown":
+          e.preventDefault();
+          slotStep(1);
+          break;
+        case "ArrowLeft":
+        case "ArrowUp":
+          e.preventDefault();
+          slotStep(-1);
+          break;
+        case "Enter":
+        case " ":
+          e.preventDefault();
+          if (interactive && diveI < 0 && frontPlane >= 0 && shown >= 0) {
+            openCard(frontPlane);
+          }
+          break;
+        default:
+          break;
+      }
+    };
+    container.addEventListener("keydown", onKeyDown);
+
+    /* --------------------------------------------------------------- skip */
+    // 엔트리는 스스로 10초 가까이 돌고, 그동안 읽을 수 있는 것이 없다. WCAG 2.2
+    // SC 2.2.2 (Pause, Stop, Hide, Level A) 는 자동으로 시작해 5초를 넘기고 다른
+    // 내용과 함께 제시되는 움직임에 멈출 수단을 요구한다 — 이 연출이 정확히
+    // 그것이다. prefers-reduced-motion 을 켠 사람은 이미 2.3초에 도착하지만,
+    // 그 설정을 쓰지 않는 사람에게도 빠져나갈 문은 있어야 한다.
+    //
+    // 셰이더 자체는 대상이 아니다. wobble 은 탄생이 끝나면 0으로 죽고 wake 는
+    // 커서가 움직일 때만 살아 있어서, 가만히 둔 화면은 실제로 정지해 있다.
+    const showSkip = (on) => {
+      if (!skipEl) return;
+      skipEl.hidden = !on;
+    };
+
+    const skipEntry = () => {
+      if (!tl || interactive) return;
+      skipped = true;
+      gsap.killTweensOf(state);
+      // 이벤트를 죽인 채 끝으로 보내고, 타임라인이 콜백으로 처리하던 마무리는
+      // 손으로 맞춘다. 그래야 중간에 멈춰 있는 addPause 를 지나도 상태가 남지
+      // 않는다.
+      tl.progress(1, true).pause();
+      textGroup.visible = false;
+      if (loaderEl) gsap.set(loaderEl, { opacity: 0 });
+      if (listEl) gsap.set(listEl, { opacity: 1 });
+      showSkip(false);
+      interactive = true;
+      container.focus({ preventScroll: true });
+    };
+    if (skipEl) skipEl.addEventListener("click", skipEntry);
 
     const updatePointer = (dt) => {
       // Held off until the entry finishes, so the cursor cannot soften the
@@ -1087,6 +1182,7 @@ export default function Carousel() {
       }
 
       frontGap = frontD;
+      frontPlane = frontI;
       over = overI;
       // Both tests, not either: the width covers a small window on a mouse,
       // `coarse` covers a large tablet. Re-tested every frame so a window
@@ -1247,6 +1343,8 @@ export default function Carousel() {
 
     const build = () => {
       interactive = false;
+      skipped = false;
+      showSkip(true);
       announced = -1;
       spinVel = 0;
       dragging = false;
@@ -1268,6 +1366,7 @@ export default function Carousel() {
         delay: reduceMotion ? 0 : 0.25,
         onComplete: () => {
           interactive = true;
+          showSkip(false);
         },
       });
 
@@ -1284,7 +1383,7 @@ export default function Carousel() {
       tl.addPause(">", () => {
         whenReady(() => {
           gsap.delayedCall(params.holdAfter, () => {
-            if (disposed || gen !== entryGen) return;
+            if (disposed || gen !== entryGen || skipped) return;
             tl.resume();
             if (loaderEl) {
               gsap.to(loaderEl, {
@@ -1652,6 +1751,8 @@ export default function Carousel() {
       container.removeEventListener("pointercancel", onPointerUp);
       container.removeEventListener("pointerleave", onPointerLeave);
       container.removeEventListener("click", onClick);
+      container.removeEventListener("keydown", onKeyDown);
+      skipEl?.removeEventListener("click", skipEntry);
 
       tl?.kill();
       gsap.killTweensOf(splitText.chars);
@@ -1683,7 +1784,36 @@ export default function Carousel() {
       {/* touch-none, or the browser claims the gesture for panning and the
           pointermove stream dies mid-drag. Nothing here scrolls — the swipe
           is the carousel. */}
-      <div ref={containerRef} className="fixed inset-0 touch-none" />
+      {/* 엔트리를 멈출 문. 문서 순서상 가장 앞에 둔다 — Tab 을 처음 눌렀을 때
+          가장 먼저 잡혀야 의미가 있고, 마우스가 없는 사람에게도 보여야 한다.
+          hover 로만 드러나는 방식은 키보드·음성 사용자를 빼놓는다. */}
+      <button
+        ref={skipRef}
+        type="button"
+        hidden
+        data-ring
+        className="fixed left-4 top-4 z-30 rounded-full border border-black/15 bg-[#fafafa]/80 px-3.5 py-1.5 text-xs text-black/60 backdrop-blur-sm transition hover:bg-black/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#a2542f]"
+        style={{
+          fontFamily: '"Freesentation", ui-sans-serif, system-ui, sans-serif',
+        }}
+      >
+        인트로 건너뛰기
+      </button>
+
+      {/* touch-none, or the browser claims the gesture for panning and the
+          pointermove stream dies mid-drag. Nothing here scrolls — the swipe
+          is the carousel.
+
+          tabIndex 0: 이 하나가 링 전체의 조작 지점이다. 화살표로 카드를 넘기고
+          Enter 로 연다 (onKeyDown 참고). */}
+      <div
+        ref={containerRef}
+        data-ring
+        tabIndex={0}
+        role="group"
+        aria-label="작업 링. 좌우 화살표로 카드를 넘기고 Enter 로 자세히 봅니다."
+        className="fixed inset-0 touch-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-[#a2542f]"
+      />
 
       {/* Never takes the pointer: the canvas underneath handles the wheel and
           the drag, and the column has no business interrupting a throw that
@@ -1699,7 +1829,7 @@ export default function Carousel() {
       >
         {PROJECTS.map((p, i) => (
           <li
-            key={p.file}
+            key={p.name}
             ref={(el) => {
               itemsRef.current[i] = el;
             }}

@@ -1,0 +1,25 @@
+// 진단(비동결): JavaScript 를 끈 브라우저에서 페이지가 읽히는지.
+import { createServer } from "node:http";
+import { readFile } from "node:fs/promises";
+import { join, extname, dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { chromium } from "playwright";
+const here = dirname(fileURLToPath(import.meta.url));
+const root = resolve(here, "../web/out");
+const MIME={".html":"text/html",".js":"text/javascript",".css":"text/css",".webp":"image/webp",".svg":"image/svg+xml",".woff2":"font/woff2",".txt":"text/plain",".xml":"application/xml"};
+const server=createServer(async(req,res)=>{let p=decodeURIComponent(new URL(req.url,"http://x").pathname);if(p.endsWith("/"))p+="index.html";
+  try{const b=await readFile(join(root,p));res.writeHead(200,{"content-type":MIME[extname(p)]??"application/octet-stream"});res.end(b);}catch{res.writeHead(404);res.end();}});
+await new Promise(ok=>server.listen(4682,ok));
+const browser=await chromium.launch({headless:true});
+const ctx=await browser.newContext({viewport:{width:900,height:1200},javaScriptEnabled:false});
+const page=await ctx.newPage();
+await page.goto("http://127.0.0.1:4682/",{waitUntil:"load"});
+const seen=await page.evaluate?undefined:undefined;
+const box=await page.locator("main").boundingBox();
+const text=(await page.locator("main").innerText()).replace(/\s+/g," ").trim();
+console.log("JS 꺼짐:");
+console.log("  main 이 화면에 그려진 크기:", box ? `${Math.round(box.width)}x${Math.round(box.height)}` : "보이지 않음");
+console.log("  읽히는 글자 수:", text.length);
+console.log("  첫 줄:", text.slice(0,80));
+await page.screenshot({path:"shots/nojs.png",fullPage:false});
+await browser.close();server.close();
